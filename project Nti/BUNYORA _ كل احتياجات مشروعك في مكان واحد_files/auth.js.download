@@ -1,0 +1,380 @@
+// window.hatchable.auth — browser-side helper for projects with [auth]
+// enabled. Wraps every /api/auth/* endpoint + the WebAuthn ceremony so
+// agents writing project frontends don't need to know the endpoint
+// URLs, the error envelope, or how to do the JSON↔ArrayBuffer dance
+// for navigator.credentials.*.
+//
+// Served at /__hatchable/auth.js, auto-injected into the <head> of
+// every page on a project that has [auth] enabled = true. See
+// DeployService::headInjection. Templates use it like:
+//
+//   const r = await window.hatchable.auth.startLogin({ email });
+//   if (r.has_passkey && wantsPasskey) {
+//     await window.hatchable.auth.signInWithPasskey({ email });
+//   } else {
+//     await window.hatchable.auth.verifyCode({ email, code });
+//   }
+//   await window.hatchable.auth.registerPasskey();   // post-signin prompt
+//   await window.hatchable.auth.signOut();
+//
+// Errors throw with a `.status` and `.message` so callers can branch
+// on the HTTP status without parsing the body themselves.
+
+(function () {
+  if (window.hatchable && window.hatchable.auth) return;
+
+  // A destination that stays on this app: one leading '/', never '//'.
+  // Browsers read a backslash as '/' and strip tab/CR/LF before parsing,
+  // so '/\evil.com' and '/<TAB>/evil.com' are both '//evil.com': refuse a
+  // backslash or control character anywhere (#996). Mirrors
+  // auth-executor.mjs sanitizeNext and the hosted login page.
+  function isAppPath(next) {
+    if (typeof next !== 'string' || next.charAt(0) !== '/' || next.charAt(1) === '/') return false;
+    for (let i = 0; i < next.length; i++) {
+      const c = next.charCodeAt(i);
+      if (c < 32 || c === 92 || c === 127) return false;
+    }
+    return true;
+  }
+
+  // ---------------------------------------------------------------------
+  // base64url <-> bytes. WebAuthn ships challenge / credentialId /
+  // attestationObject / etc. as Uint8Array on the browser side and as
+  // base64url strings on the wire. SimpleWebAuthn does the same dance —
+  // we just inline the ~30 lines so we don't pin the bundle URL.
+  // ---------------------------------------------------------------------
+  function b64urlToBytes(s) {
+    const pad = '='.repeat((4 - (s.length % 4)) % 4);
+    const b64 = (s + pad).replace(/-/g, '+').replace(/_/g, '/');
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  function bytesToB64url(buf) {
+    const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  // ---------------------------------------------------------------------
+  // Options arrive from the server as JSON with base64url strings. The
+  // browser API needs ArrayBuffers in specific positions. Mirror the
+  // shape exactly — extra fields pass through unchanged.
+  // ---------------------------------------------------------------------
+  function decodeAuthnOptions(opts) {
+    const out = { ...opts, challenge: b64urlToBytes(opts.challenge) };
+    if (Array.isArray(opts.allowCredentials)) {
+      out.allowCredentials = opts.allowCredentials.map((c) => ({
+        ...c,
+        id: b64urlToBytes(c.id),
+      }));
+    }
+    return out;
+  }
+
+  function decodeRegOptions(opts) {
+    const out = decodeAuthnOptions(opts);
+    if (opts.user) out.user = { ...opts.user, id: b64urlToBytes(opts.user.id) };
+    if (Array.isArray(opts.excludeCredentials)) {
+      out.excludeCredentials = opts.excludeCredentials.map((c) => ({
+        ...c,
+        id: b64urlToBytes(c.id),
+      }));
+    }
+    return out;
+  }
+
+  // Encode a navigator.credentials.* result into the SimpleWebAuthn-
+  // server-compatible JSON shape our /api/auth/login/passkey/verify and
+  // /api/auth/passkeys/register/verify endpoints expect.
+  function encodeAssertion(cred) {
+    const r = cred.response;
+    return {
+      id: cred.id,
+      rawId: bytesToB64url(cred.rawId),
+      type: cred.type,
+      authenticatorAttachment: cred.authenticatorAttachment || null,
+      clientExtensionResults: cred.getClientExtensionResults
+        ? cred.getClientExtensionResults()
+        : {},
+      response: {
+        clientDataJSON: bytesToB64url(r.clientDataJSON),
+        authenticatorData: bytesToB64url(r.authenticatorData),
+        signature: bytesToB64url(r.signature),
+        userHandle: r.userHandle ? bytesToB64url(r.userHandle) : null,
+      },
+    };
+  }
+
+  function encodeRegistration(cred) {
+    const r = cred.response;
+    return {
+      id: cred.id,
+      rawId: bytesToB64url(cred.rawId),
+      type: cred.type,
+      authenticatorAttachment: cred.authenticatorAttachment || null,
+      clientExtensionResults: cred.getClientExtensionResults
+        ? cred.getClientExtensionResults()
+        : {},
+      response: {
+        clientDataJSON: bytesToB64url(r.clientDataJSON),
+        attestationObject: bytesToB64url(r.attestationObject),
+        // Transports help the server hint the right authenticator on
+        // future logins. Optional — older browsers don't expose it.
+        transports: typeof r.getTransports === 'function' ? r.getTransports() : [],
+      },
+    };
+  }
+
+  // ---------------------------------------------------------------------
+  // Tiny fetch wrapper that throws on !ok with a useful Error so callers
+  // can do `try { … } catch (e) { if (e.status === 429) … }`. The
+  // platform's error envelope is `{ error: string }`; we surface that
+  // as e.message and stash the status + retry-after.
+  // ---------------------------------------------------------------------
+  async function api(path, init) {
+    const opts = init || {};
+    const headers = { Accept: 'application/json', ...(opts.headers || {}) };
+    if (opts.body && typeof opts.body !== 'string') {
+      headers['Content-Type'] = 'application/json';
+      opts.body = JSON.stringify(opts.body);
+    }
+    const res = await fetch(path, { credentials: 'same-origin', ...opts, headers });
+    let data = null;
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      try { data = await res.json(); } catch { /* empty body */ }
+    }
+    if (!res.ok) {
+      const err = new Error((data && data.error) || `Request failed (${res.status})`);
+      err.status = res.status;
+      err.retryAfter = Number(res.headers.get('retry-after')) || null;
+      err.body = data;
+      throw err;
+    }
+    return data;
+  }
+
+  // ---------------------------------------------------------------------
+  // Public surface
+  // ---------------------------------------------------------------------
+  const auth = {
+    /**
+     * Returns true if this browser can mint platform-authenticator
+     * passkeys (Touch ID / Face ID / Windows Hello). UI should hide
+     * the passkey buttons when false and fall back to the code path.
+     */
+    supportsPasskeys() {
+      return typeof window.PublicKeyCredential === 'function'
+        && typeof navigator.credentials !== 'undefined'
+        && typeof navigator.credentials.create === 'function';
+    },
+
+    /** Issue a 6-digit code to the email. Resolves to { has_passkey }. */
+    async startLogin({ email }) {
+      return api('/api/auth/login/start', { method: 'POST', body: { email } });
+    },
+
+    /** Verify a code; on success, the session cookie is set and { user } is returned. */
+    async verifyCode({ email, code }) {
+      return api('/api/auth/login/verify-code', { method: 'POST', body: { email, code } });
+    },
+
+    /**
+     * Which sign-in methods are live for this app on THIS host right
+     * now — e.g. ['email'] or ['email', 'google']. Custom login pages
+     * render provider buttons off this instead of hardcoding, so a
+     * provider that deactivates (say, a domain losing verification)
+     * disappears instead of 404ing.
+     */
+    async providers() {
+      const r = await api('/api/auth/providers', { method: 'GET' });
+      return (r && r.providers) || ['email'];
+    },
+
+    /**
+     * Google sign-in (full-page redirect). The whole ceremony — PKCE,
+     * state, nonce, the token exchange — runs server-side at platform
+     * routes; this just navigates. `next` must be a relative path on
+     * this app (anything else falls back to '/'). Only works when
+     * providers() includes 'google'.
+     */
+    signInWithGoogle({ next } = {}) {
+      const dest = isAppPath(next) ? next : (location.pathname + location.search);
+      location.href = '/api/auth/google/start?next=' + encodeURIComponent(dest);
+    },
+
+    /**
+     * Drive the WebAuthn signin ceremony end-to-end. Returns { user }
+     * on success. Throws on user cancellation, unknown credential, or
+     * a malformed assertion — wrap in try/catch and offer the code
+     * path as a fallback.
+     */
+    async signInWithPasskey({ email } = {}) {
+      const opts = await api('/api/auth/login/passkey/options', {
+        method: 'POST',
+        body: email ? { email } : {},
+      });
+      let cred;
+      try {
+        cred = await navigator.credentials.get({ publicKey: decodeAuthnOptions(opts) });
+      } catch (err) {
+        const wrapped = new Error(err.message || 'Passkey sign-in cancelled.');
+        wrapped.cause = err;
+        wrapped.status = 0;
+        throw wrapped;
+      }
+      return api('/api/auth/login/passkey/verify', {
+        method: 'POST',
+        body: { credential: encodeAssertion(cred) },
+      });
+    },
+
+    /**
+     * Wire WebAuthn conditional-mediation to a (usually email) input
+     * so the user's saved passkeys appear in the browser's autofill
+     * dropdown alongside saved emails. Tapping one signs them in
+     * without typing anything or clicking a separate "use passkey"
+     * button — the canonical "passkey-first" UX.
+     *
+     * Call this once on page load. Resolves to the signed-in user
+     * envelope ({ user }) when a passkey is selected, or null when:
+     *   - the browser doesn't support conditional mediation
+     *   - the user dismisses / never picks the passkey suggestion
+     *   - the AbortSignal you passed is aborted
+     *   - any other reason the autofill flow doesn't complete
+     *
+     * The returned promise stays pending until the user interacts
+     * with the autofill suggestion, the page navigates away, OR you
+     * abort the signal you passed. It does NOT block your normal
+     * email-code flow.
+     *
+     * `signal` (optional) is an AbortSignal you control. Pass one
+     * and abort it when the user transitions away from the email
+     * step (e.g. when the email input leaves the DOM) so the
+     * pending navigator.credentials.get() doesn't sit around forever
+     * and can't fire late and clobber state you've already set.
+     *
+     *   const ctrl = new AbortController();
+     *   window.hatchable.auth.attachPasskeyAutofill(emailInput, { signal: ctrl.signal })
+     *     .then(r => { if (r && !alreadySignedIn) signIn(r.user); });
+     *   // Later, when leaving the email step:
+     *   ctrl.abort();
+     *
+     * The input must have `autocomplete="username webauthn"` for the
+     * browser to surface passkeys in its dropdown.
+     */
+    async attachPasskeyAutofill(emailInput, { signal } = {}) {
+      // Feature-detect — older browsers ignore the `mediation` flag,
+      // which would silently fall through to a regular modal prompt.
+      // Bail out cleanly so callers can render their normal UI.
+      if (typeof window.PublicKeyCredential !== 'function'
+          || typeof window.PublicKeyCredential.isConditionalMediationAvailable !== 'function') {
+        return null;
+      }
+      let supported = false;
+      try { supported = await window.PublicKeyCredential.isConditionalMediationAvailable(); }
+      catch { return null; }
+      if (!supported) return null;
+
+      // Best-effort: stamp the input with the right autocomplete tokens
+      // so a caller who forgot still gets the autofill dropdown. Keep
+      // any existing tokens the caller already set.
+      if (emailInput && emailInput.setAttribute) {
+        const cur = emailInput.getAttribute('autocomplete') || '';
+        if (!/\bwebauthn\b/.test(cur)) {
+          emailInput.setAttribute('autocomplete', (cur ? cur + ' ' : 'username ') + 'webauthn');
+        }
+      }
+
+      // Pull options without a hint email — backend returns
+      // allowCredentials: [], browser uses the resident credential's
+      // user handle to decide which one to surface.
+      const opts = await api('/api/auth/login/passkey/options', { method: 'POST', body: {} });
+
+      let cred;
+      try {
+        cred = await navigator.credentials.get({
+          publicKey: decodeAuthnOptions(opts),
+          mediation: 'conditional',
+          signal,
+        });
+      } catch (err) {
+        // NotAllowedError / AbortError: user dismissed, page navigated,
+        // or the caller aborted via the signal. Surface as null so
+        // callers can fall back to the code flow without a noisy
+        // thrown exception.
+        if (err && (err.name === 'NotAllowedError' || err.name === 'AbortError')) return null;
+        throw err;
+      }
+      if (!cred) return null;
+
+      return api('/api/auth/login/passkey/verify', {
+        method: 'POST',
+        body: { credential: encodeAssertion(cred) },
+      });
+    },
+
+    /**
+     * Register a passkey on the current device. The user must already
+     * be signed in (any auth method). Returns the new passkey's id +
+     * name, or null if the user cancelled the OS prompt.
+     *
+     *   `name` defaults to a label derived from the user agent. The
+     *   user can rename it later from the manage-passkeys page.
+     */
+    async registerPasskey({ name } = {}) {
+      const opts = await api('/api/auth/passkeys/register/options', { method: 'POST' });
+      let cred;
+      try {
+        cred = await navigator.credentials.create({ publicKey: decodeRegOptions(opts) });
+      } catch (err) {
+        // Cancellation is the most common reason create() throws —
+        // surface it as null so callers can differentiate from
+        // server-side failures (which throw via api()).
+        if (err && err.name === 'NotAllowedError') return null;
+        throw err;
+      }
+      const label = name || guessPasskeyLabel();
+      return api('/api/auth/passkeys/register/verify', {
+        method: 'POST',
+        body: { credential: encodeRegistration(cred), name: label },
+      });
+    },
+
+    /** Resolve the current session, or null if signed out. */
+    async getSession() {
+      return api('/api/auth/get-session', { method: 'GET' });
+    },
+
+    /** Clear the session cookie. */
+    async signOut() {
+      return api('/api/auth/sign-out', { method: 'POST' });
+    },
+
+    passkeys: {
+      /** List the signed-in user's passkeys. */
+      async list() {
+        const r = await api('/api/auth/passkeys', { method: 'GET' });
+        return r.passkeys || [];
+      },
+      /** Remove a passkey by id. */
+      async remove(id) {
+        return api('/api/auth/passkeys/' + encodeURIComponent(id), { method: 'DELETE' });
+      },
+    },
+  };
+
+  function guessPasskeyLabel() {
+    // Best-effort device label so the manage-passkeys page shows
+    // something more useful than "My passkey" by default.
+    const ua = (navigator.userAgentData && navigator.userAgentData.platform)
+      || (navigator.platform || '');
+    return ua ? `${ua} passkey` : 'My passkey';
+  }
+
+  window.hatchable = window.hatchable || {};
+  window.hatchable.auth = auth;
+})();

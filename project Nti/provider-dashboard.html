@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light" data-language="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة إدارة النشاط (صنايعي / مورد) | BUNYORA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container-custom header-inner">
+      <a href="index.html" class="brand"><img class="brand-logo" src="assets/img/Bunyora Architectural Monogram Logo.webp" alt="BUNYORA"></a>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="engineers.html">المهندسين</a>
+        <a href="workers.html">العمال</a>
+        <a href="suppliers.html">الأدوات والمحلات</a>
+        <a class="active" href="provider-dashboard.html">🧰 لوحة نشاطي</a>
+      </nav>
+      <div class="header-actions"></div>
+    </div>
+  </header>
+
+  <section class="page-hero">
+    <div class="container-custom d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <span id="prov-role-badge" class="badge-status badge-green mb-2">حساب مقدم خدمة</span>
+        <h1 id="prov-welcome">أهلاً بك في لوحة إدارة نشاطك</h1>
+        <p class="mb-0">حدّث بياناتك، أرقام التواصل، الخامات أو البنود التي تقدمها، وحالة توفرك للعملاء في الدليل.</p>
+      </div>
+      <a id="prov-directory-link" href="workers.html" class="btn-bunyora btn-bunyora-light">👁️ معاينة ظهوري في الدليل</a>
+    </div>
+  </section>
+
+  <main class="section py-5">
+    <div class="container-custom" style="max-width: 860px;">
+      <div id="prov-toast" class="alert alert-success fw-bold small py-2" hidden></div>
+
+      <div class="panel-card p-4 p-md-5">
+        <h2 id="prov-form-title">⚙️ تعديل بيانات ملفك في الدليل</h2>
+        <form id="provider-update-form">
+          <div class="row g-3 mb-3">
+            <!-- Worker Fields -->
+            <div class="col-md-6 worker-only-field">
+              <label class="form-label-custom">المهنة / التخصص التنفيذي</label>
+              <input type="text" id="prov-trade" class="form-control-custom" placeholder="مثال: كهرباء، سباكة، سيراميك">
+            </div>
+            <div class="col-md-6 worker-only-field">
+              <label class="form-label-custom">سنوات الخبرة</label>
+              <input type="number" id="prov-exp" class="form-control-custom" value="12">
+            </div>
+
+            <!-- Supplier Fields -->
+            <div class="col-md-6 supplier-only-field" hidden>
+              <label class="form-label-custom">اسم المعرض أو الشركة</label>
+              <input type="text" id="prov-business" class="form-control-custom" placeholder="مثال: معرض الصفوة للسيراميك">
+            </div>
+            <div class="col-md-6 supplier-only-field" hidden>
+              <label class="form-label-custom">تصنيف الخامات والنشاط</label>
+              <input type="text" id="prov-category" class="form-control-custom" placeholder="مثال: سيراميك وأدوات صحية">
+            </div>
+            <div class="col-12 supplier-only-field" hidden>
+              <label class="form-label-custom">معلومات التوصيل والتوريد للموقع</label>
+              <input type="text" id="prov-delivery" class="form-control-custom" value="يتوفر توصيل وتوريد للموقع">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label-custom">وصف تفصيلي للخدمات أو الخامات المتاحة</label>
+              <textarea id="prov-summary" rows="3" class="form-control-custom" required></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label-custom">الكلمات المفتاحية والبنود / المنتجات (افصل بينها بفاصلة ،)</label>
+              <input type="text" id="prov-tags" class="form-control-custom" placeholder="مثال: تأسيس كهرباء، تشطيب إنارة، سمارت هوم">
+            </div>
+
+            <div class="col-12 worker-only-field">
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" id="prov-available" checked>
+                <label class="form-check-label fw-bold text-success" for="prov-available">🟢 متاح حالياً لاستقبال اتصالات وطلبات شغل جديدة</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end pt-3 border-top">
+            <button type="submit" class="btn-bunyora btn-bunyora-primary px-5">حفظ التعديلات في الدليل ✓</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/preferences.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      // STRICT GUARD: ONLY WORKER OR SUPPLIER CAN ACCESS THIS DASHBOARD
+      const user = window.BunyoraAuth.requireRole(["worker", "supplier"]);
+      if (!user) return;
+
+      const API_BASE = "api/index.php?route=";
+      const isWorker = user.role === "worker";
+
+      document.getElementById("prov-welcome").textContent = `أهلاً بك، ${user.full_name}`;
+      document.getElementById("prov-role-badge").textContent = isWorker ? "👷 حساب صنايعي وفني" : "🏪 حساب معرض ومورد خامات";
+      document.getElementById("prov-directory-link").href = isWorker ? "workers.html" : "suppliers.html";
+
+      document.querySelectorAll(".worker-only-field").forEach(el => { el.hidden = !isWorker; });
+      document.querySelectorAll(".supplier-only-field").forEach(el => { el.hidden = isWorker; });
+
+      // Load fresh profile from MySQL
+      try {
+        const res = await fetch(`${API_BASE}auth/user/${user.id}`);
+        const data = await res.json();
+        if (data.user) {
+          if (isWorker && data.user.worker_profile) {
+            const wp = data.user.worker_profile;
+            document.getElementById("prov-trade").value = wp.trade || "";
+            document.getElementById("prov-exp").value = wp.years_experience || 10;
+            document.getElementById("prov-summary").value = wp.summary || "";
+            document.getElementById("prov-tags").value = (wp.tags || []).join("، ");
+            document.getElementById("prov-available").checked = Number(wp.is_available) === 1;
+          } else if (!isWorker && data.user.supplier_profile) {
+            const sp = data.user.supplier_profile;
+            document.getElementById("prov-business").value = sp.business_name || "";
+            document.getElementById("prov-category").value = sp.category || "";
+            document.getElementById("prov-delivery").value = sp.delivery_info || "";
+            document.getElementById("prov-summary").value = sp.summary || "";
+            document.getElementById("prov-tags").value = (sp.tags || []).join("، ");
+          }
+        }
+      } catch (e) {}
+
+      document.getElementById("provider-update-form")?.addEventListener("submit", async e => {
+        e.preventDefault();
+        const payload = {
+          user_id: user.id,
+          role: user.role,
+          trade: document.getElementById("prov-trade").value,
+          years_experience: document.getElementById("prov-exp").value,
+          business_name: document.getElementById("prov-business").value,
+          category: document.getElementById("prov-category").value,
+          delivery_info: document.getElementById("prov-delivery").value,
+          summary: document.getElementById("prov-summary").value,
+          tags_str: document.getElementById("prov-tags").value,
+          is_available: document.getElementById("prov-available").checked
+        };
+
+        const res = await fetch(`${API_BASE}provider/update`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const toast = document.getElementById("prov-toast");
+        toast.textContent = data.message;
+        toast.hidden = false;
+        setTimeout(() => { toast.hidden = true; }, 3500);
+      });
+    });
+  </script>
+</body>
+</html>

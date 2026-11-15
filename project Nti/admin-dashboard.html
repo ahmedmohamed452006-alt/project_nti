@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light" data-language="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم الإدارة العامة (Admin Panel) | BUNYORA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .admin-hero { background: linear-gradient(125deg, #071422 0%, #102a42 60%, #1c3b36 100%); color: #fff; padding: 36px 0; border-bottom: 3px solid var(--gold); }
+    .admin-stat-card { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 20px; position: relative; overflow: hidden; transition: var(--transition); height: 100%; }
+    .admin-stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--gold); }
+    .admin-stat-card strong { font-size: 30px; font-weight: 900; color: var(--navy); display: block; }
+    .admin-stat-card span { font-size: 12.5px; color: var(--muted); font-weight: 800; }
+    .admin-sidebar-nav { display: flex; flex-direction: column; gap: 8px; position: sticky; top: 96px; }
+    .admin-nav-btn { width: 100%; text-align: right; padding: 13px 18px; border-radius: 14px; border: 1px solid var(--line); background: #fff; color: var(--navy); font-weight: 800; font-size: 13.5px; display: flex; align-items: center; justify-content: space-between; transition: var(--transition); }
+    .admin-nav-btn.active, .admin-nav-btn:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .admin-nav-btn.active .badge { background: var(--gold) !important; color: #071422 !important; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container-custom header-inner">
+      <a href="index.html" class="brand"><img class="brand-logo" src="assets/img/Bunyora Architectural Monogram Logo.webp" alt="BUNYORA"></a>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="engineers.html">المهندسين</a>
+        <a href="workers.html">العمال</a>
+        <a href="suppliers.html">الأدوات والمحلات</a>
+        <a class="active" href="admin-dashboard.html">👑 لوحة الإدارة</a>
+      </nav>
+      <div class="header-actions"></div>
+    </div>
+  </header>
+
+  <section class="admin-hero">
+    <div class="container-custom d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <span class="badge bg-warning text-dark fw-bold mb-2">👑 صلاحيات المدير العام فقط (Super Admin Control Panel)</span>
+        <h1 class="fw-bold fs-2 mb-1">غرفة التحكم وإدارة منصة BUNYORA</h1>
+        <p class="text-white-50 small mb-0">إدارة وتوثيق المهندسين، مراجعة طلبات انضمام الصنايعية والمحلات، إدارة الأقسام، ومراقبة الطلبات.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="api-tester.html" class="btn-bunyora btn-bunyora-gold">⚡ فاحص الـ API</a>
+        <button type="button" id="refresh-admin-btn" class="btn-bunyora btn-bunyora-light">🔄 تحديث البيانات الحية</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="section py-5">
+    <div class="container-custom">
+      <!-- Live KPI Stats -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="admin-stat-card">
+            <strong id="st-total-users">0</strong>
+            <span>👥 إجمالي المستخدمين المسجلين</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="admin-stat-card" style="border-right: 4px solid #d59c36;">
+            <strong id="st-pending-users" class="text-warning">0</strong>
+            <span>⏳ حسابات تنتظر موافقة الأدمن</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="admin-stat-card" style="border-right: 4px solid #0d8b70;">
+            <strong id="st-verified-eng" class="text-success">0</strong>
+            <span>✓ مهندسون موثقون بنقابة المهندسين</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="admin-stat-card">
+            <strong id="st-total-requests">0</strong>
+            <span>📋 طلبات المشاريع والعروض</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4 align-items-start">
+        <!-- Admin Sidebar -->
+        <div class="col-lg-3">
+          <div class="admin-sidebar-nav">
+            <button type="button" class="admin-nav-btn active" data-pane="approvals">
+              <span>🛡️ طلبات التوثيق والاعتماد</span>
+              <span id="badge-pending" class="badge bg-warning text-dark">0</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-pane="users">
+              <span>👥 إدارة جميع الحسابات</span>
+              <span id="badge-users" class="badge bg-secondary">0</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-pane="specialties">
+              <span>📐 إدارة التخصصات الهندسية</span>
+              <span id="badge-specs" class="badge bg-secondary">10</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-pane="requests">
+              <span>📋 مراقبة طلبات المشاريع</span>
+              <span id="badge-reqs" class="badge bg-secondary">0</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-pane="subscribers">
+              <span>📬 مشتركو النشرة البريدية</span>
+              <span id="badge-subs" class="badge bg-secondary">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Admin Content Panes -->
+        <div class="col-lg-9">
+          <div id="admin-alert-box" class="alert alert-success fw-bold small py-2" hidden></div>
+
+          <!-- PANE 1: Pending Approvals -->
+          <div id="pane-approvals" class="admin-pane">
+            <div class="panel-card">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <h2 class="mb-1">🛡️ حسابات تنتظر مراجعة وتوثيق الإدارة</h2>
+                  <p class="text-muted small mb-0">راجع بيانات المهندسين والصنايعية والموردين الجدد قبل نشرهم للعملاء.</p>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>الاسم / النشاط</th>
+                      <th>الدور</th>
+                      <th>التفاصيل المهنية / المؤهل</th>
+                      <th>المحافظة</th>
+                      <th>الحالة</th>
+                      <th>قرار الإدارة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pending-users-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 2: All Users Management -->
+          <div id="pane-users" class="admin-pane" hidden>
+            <div class="panel-card">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <h2 class="mb-0">👥 إدارة جميع المستخدمين والصلاحيات</h2>
+                <select id="admin-role-filter" class="form-control-custom" style="width:auto;">
+                  <option value="all">كل الأدوار</option>
+                  <option value="engineer">المهندسين فقط</option>
+                  <option value="worker">الصنايعية فقط</option>
+                  <option value="supplier">الموردين والمحلات</option>
+                  <option value="customer">العملاء</option>
+                </select>
+              </div>
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>الاسم والبيانات</th>
+                      <th>نوع الحساب</th>
+                      <th>التوثيق والحالة</th>
+                      <th>إجراءات التحكم</th>
+                    </tr>
+                  </thead>
+                  <tbody id="all-users-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 3: Specialties CRUD -->
+          <div id="pane-specialties" class="admin-pane" hidden>
+            <div class="panel-card mb-4">
+              <h2>➕ إضافة تخصص هندسي جديد للمنصة</h2>
+              <form id="add-specialty-form" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                  <label class="form-label-custom">اسم التخصص بالعربية</label>
+                  <input type="text" id="new-spec-ar" class="form-control-custom" placeholder="مثال: هندسة طاقة شمسية" required>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label-custom">الكود (Slug بالإنجليزية)</label>
+                  <input type="text" id="new-spec-slug" class="form-control-custom" placeholder="solar-energy" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label-custom">الأيقونة</label>
+                  <input type="text" id="new-spec-icon" class="form-control-custom" value="☀️">
+                </div>
+                <div class="col-md-3">
+                  <button type="submit" class="btn-bunyora btn-bunyora-primary w-100">إضافة التخصص +</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="panel-card">
+              <h2>📐 التخصصات الهندسية المعتمدة حالياً</h2>
+              <div class="row g-3" id="admin-specialties-grid"></div>
+            </div>
+          </div>
+
+          <!-- PANE 4: Requests Monitor -->
+          <div id="pane-requests" class="admin-pane" hidden>
+            <div class="panel-card">
+              <h2>📋 مراقبة جميع طلبات المشاريع على المنصة</h2>
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>رقم الطلب</th>
+                      <th>عنوان المشروع</th>
+                      <th>العميل</th>
+                      <th>التخصص والموقع</th>
+                      <th>العروض</th>
+                      <th>الحالة</th>
+                      <th>حذف</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-requests-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 5: Newsletter Subscribers -->
+          <div id="pane-subscribers" class="admin-pane" hidden>
+            <div class="panel-card">
+              <h2>📬 قائمة المشتركين في نشرة أسعار الخامات</h2>
+              <div id="admin-subscribers-list"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/preferences.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // STRICT GUARD: ONLY ADMIN CAN ACCESS THIS PAGE
+      const adminUser = window.BunyoraAuth.requireRole(["admin"]);
+      if (!adminUser) return;
+
+      const API_BASE = "api/index.php?route=";
+      let overviewData = { users: [], requests: [], specialties: [], subscribers: [] };
+
+      function showToast(msg) {
+        const box = document.getElementById("admin-alert-box");
+        box.textContent = msg;
+        box.hidden = false;
+        setTimeout(() => { box.hidden = true; }, 3500);
+      }
+
+      // Sidebar switching
+      document.querySelectorAll(".admin-nav-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".admin-nav-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const target = btn.dataset.pane;
+          document.querySelectorAll(".admin-pane").forEach(p => {
+            p.hidden = p.id !== `pane-${target}`;
+          });
+        });
+      });
+
+      async function loadAdminOverview() {
+        try {
+          const res = await fetch(API_BASE + "admin/overview");
+          const data = await res.json();
+          if (data.status !== "success") return;
+          overviewData = data;
+
+          // Update KPIs
+          document.getElementById("st-total-users").textContent = data.stats.total_users;
+          document.getElementById("st-pending-users").textContent = data.stats.pending_users;
+          document.getElementById("st-verified-eng").textContent = data.stats.verified_eng;
+          document.getElementById("st-total-requests").textContent = `${data.stats.total_requests} طلب (${data.stats.total_offers} عرض)`;
+
+          document.getElementById("badge-pending").textContent = data.stats.pending_users;
+          document.getElementById("badge-users").textContent = data.stats.total_users;
+          document.getElementById("badge-specs").textContent = data.specialties.length;
+          document.getElementById("badge-reqs").textContent = data.requests.length;
+          document.getElementById("badge-subs").textContent = data.subscribers.length;
+
+          renderPendingTable();
+          renderUsersTable();
+          renderSpecialties();
+          renderRequestsTable();
+          renderSubscribers();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function roleBadge(role) {
+        const map = {
+          admin: '<span class="badge bg-dark">👑 مدير</span>',
+          engineer: '<span class="badge-status badge-green">📐 مهندس</span>',
+          worker: '<span class="badge-status badge-yellow">👷 صنايعي</span>',
+          supplier: '<span class="badge-status badge-blue">🏪 مورد / محل</span>',
+          customer: '<span class="badge bg-secondary-subtle text-dark">👤 عميل</span>'
+        };
+        return map[role] || role;
+      }
+
+      function renderPendingTable() {
+        const pending = overviewData.users.filter(u => u.status === "pending");
+        const tbody = document.getElementById("pending-users-tbody");
+        if (pending.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted fw-bold">🎉 لا توجد حسابات معلقة حالياً — جميع الحسابات تمت مراجعتها!</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = pending.map(u => `
+          <tr>
+            <td>
+              <b class="d-block">${u.full_name}</b>
+              <small class="text-muted">${u.email} • ${u.phone}</small>
+            </td>
+            <td>${roleBadge(u.role)}</td>
+            <td class="small">
+              ${u.role === 'engineer' ? `<b>${u.specialty_ar || 'هندسة'}</b><br><span class="text-muted">${u.university || ''} (${u.syndicate_number || 'كارنيه مرفق'})</span>` : ''}
+              ${u.role === 'worker' ? `<b>مهنة: ${u.trade || 'فني'}</b>` : ''}
+              ${u.role === 'supplier' ? `<b>${u.business_name || ''}</b> (${u.supplier_category || ''})` : ''}
+            </td>
+            <td>${u.governorate || 'القاهرة'}</td>
+            <td><span class="badge-status badge-yellow">⏳ قيد المراجعة</span></td>
+            <td>
+              <div class="d-flex gap-2">
+                <button class="btn-bunyora btn-bunyora-primary py-1 px-3 small" onclick="updateUserStatus(${u.id}, 'approve')">✓ اعتماد وتوثيق</button>
+                <button class="btn-bunyora btn-bunyora-outline py-1 px-3 small text-danger" onclick="updateUserStatus(${u.id}, 'reject')">✕ رفض</button>
+              </div>
+            </td>
+          </tr>
+        `).join("");
+      }
+
+      function renderUsersTable() {
+        const filter = document.getElementById("admin-role-filter").value;
+        const list = filter === "all" ? overviewData.users : overviewData.users.filter(u => u.role === filter);
+        const tbody = document.getElementById("all-users-tbody");
+
+        tbody.innerHTML = list.map(u => `
+          <tr>
+            <td class="fw-bold">#${u.id}</td>
+            <td>
+              <b class="d-block">${u.full_name}</b>
+              <small class="text-muted">${u.email} • ${u.governorate || ''}</small>
+            </td>
+            <td>${roleBadge(u.role)}</td>
+            <td>
+              ${window.BunyoraHelpers.statusBadge(u.status)}
+              ${u.role === 'engineer' ? (Number(u.is_verified) === 1 ? '<span class="verified-badge ms-1">✓ موثّق</span>' : '<span class="badge bg-warning-subtle text-dark ms-1">غير موثق</span>') : ''}
+            </td>
+            <td>
+              ${u.role !== 'admin' ? `
+                <div class="d-flex flex-wrap gap-1">
+                  ${u.status !== 'approved' ? `<button class="btn btn-sm btn-success fw-bold" onclick="updateUserStatus(${u.id}, 'approve')">اعتماد</button>` : ''}
+                  ${u.role === 'engineer' ? `<button class="btn btn-sm btn-outline-primary fw-bold" onclick="updateUserStatus(${u.id}, 'toggle_verify')">تبديل التوثيق ✓</button>` : ''}
+                  ${u.status !== 'suspended' ? `<button class="btn btn-sm btn-outline-warning fw-bold" onclick="updateUserStatus(${u.id}, 'suspend')">إيقاف</button>` : ''}
+                  <button class="btn btn-sm btn-outline-danger fw-bold" onclick="deleteUser(${u.id})">حذف</button>
+                </div>
+              ` : '<small class="text-muted fw-bold">حساب محمي</small>'}
+            </td>
+          </tr>
+        `).join("");
+      }
+
+      function renderSpecialties() {
+        const grid = document.getElementById("admin-specialties-grid");
+        grid.innerHTML = overviewData.specialties.map(s => `
+          <div class="col-md-4 col-sm-6">
+            <div class="specialty-pill">
+              <span>${s.icon}</span>
+              <b>${s.name_ar}</b>
+              <small>${s.engineer_count} مهندس</small>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      function renderRequestsTable() {
+        const tbody = document.getElementById("admin-requests-tbody");
+        tbody.innerHTML = overviewData.requests.map(r => `
+          <tr>
+            <td class="fw-bold">#${r.id}</td>
+            <td>
+              <b class="d-block">${r.title}</b>
+              <small class="text-muted">${r.unit_type} • ${r.area_sqm} م²</small>
+            </td>
+            <td>
+              <b>${r.customer_name}</b><br>
+              <small class="text-muted">${r.customer_phone}</small>
+            </td>
+            <td>${r.specialty_ar}<br><small class="text-muted">${r.city}، ${r.governorate}</small></td>
+            <td><span class="badge bg-dark">${r.offers_count} عروض</span></td>
+            <td>${window.BunyoraHelpers.statusBadge(r.status)}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-danger fw-bold" onclick="deleteRequest(${r.id})">حذف</button>
+            </td>
+          </tr>
+        `).join("");
+      }
+
+      function renderSubscribers() {
+        const box = document.getElementById("admin-subscribers-list");
+        if (overviewData.subscribers.length === 0) {
+          box.innerHTML = `<p class="text-muted mb-0">لا يوجد مشتركون حتى الآن.</p>`;
+          return;
+        }
+        box.innerHTML = overviewData.subscribers.map(s => `
+          <div class="d-flex justify-content-between py-2 border-bottom small">
+            <b class="text-dark">📧 ${s.email}</b>
+            <span class="text-muted">${s.created_at}</span>
+          </div>
+        `).join("");
+      }
+
+      window.updateUserStatus = async (id, action) => {
+        const res = await fetch(`${API_BASE}admin/users/${id}/status`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action })
+        });
+        const data = await res.json();
+        showToast(data.message || "تم التحديث");
+        loadAdminOverview();
+      };
+
+      window.deleteUser = async (id) => {
+        if (!confirm("هل أنت متأكد من حذف هذا الحساب نهائياً؟")) return;
+        const res = await fetch(`${API_BASE}admin/users/${id}/delete`, { method: "POST" });
+        const data = await res.json();
+        showToast(data.message);
+        loadAdminOverview();
+      };
+
+      window.deleteRequest = async (id) => {
+        if (!confirm("هل تريد حذف هذا الطلب؟")) return;
+        const res = await fetch(`${API_BASE}admin/requests/${id}/delete`, { method: "POST" });
+        const data = await res.json();
+        showToast(data.message);
+        loadAdminOverview();
+      };
+
+      document.getElementById("add-specialty-form")?.addEventListener("submit", async e => {
+        e.preventDefault();
+        const name_ar = document.getElementById("new-spec-ar").value;
+        const slug = document.getElementById("new-spec-slug").value;
+        const icon = document.getElementById("new-spec-icon").value;
+        const res = await fetch(`${API_BASE}admin/specialties`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name_ar, slug, icon })
+        });
+        const data = await res.json();
+        showToast(data.message);
+        e.target.reset();
+        loadAdminOverview();
+      });
+
+      document.getElementById("admin-role-filter")?.addEventListener("change", renderUsersTable);
+      document.getElementById("refresh-admin-btn")?.addEventListener("click", loadAdminOverview);
+      loadAdminOverview();
+    });
+  </script>
+</body>
+</html>

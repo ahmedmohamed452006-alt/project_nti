@@ -1,0 +1,178 @@
+{
+  "info": {
+    "_postman_id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+    "name": "BUNYORA API - NTI Graduation Project",
+    "description": "BUNYORA Platform RESTful APIs connected to MySQL bunyora_db",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. GET Catalog & Stats (التخصصات والإحصائيات)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json", "type": "text" }
+        ],
+        "url": {
+          "raw": "http://localhost/project%20Nti/api/index.php?route=catalog",
+          "protocol": "http",
+          "host": ["localhost"],
+          "path": ["project%20Nti", "api", "index.php"],
+          "query": [
+            { "key": "route", "value": "catalog" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. GET All Engineers (كل المهندسين)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json", "type": "text" }
+        ],
+        "url": {
+          "raw": "http://localhost/project%20Nti/api/index.php?route=engineers",
+          "protocol": "http",
+          "host": ["localhost"],
+          "path": ["project%20Nti", "api", "index.php"],
+          "query": [
+            { "key": "route", "value": "engineers" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. GET Single Engineer Profile (ملف مهندس بالتفصيل)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json", "type": "text" }
+        ],
+        "url": {
+          "raw": "http://localhost/project%20Nti/api/index.php?route=engineers/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "path": ["project%20Nti", "api", "index.php"],
+          "query": [
+            { "key": "route", "value": "engineers/1" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. GET All Workers (دليل العمال والصنايعية)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json", "type": "text" }
+        ],
+        "url": {
+          "raw": "http://localhost/project%20Nti/api/index.php?route=workers",
+          "protocol": "http",
+          "host": ["localhost"],
+          "path": ["project%20Nti", "api", "index.php"],
+          "query": [
+            { "key": "route", "value": "workers" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. GET All Suppliers (دليل المحلات والموردين)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json", "type": "text" }
+        ],
+        "url": {
+          "raw": "http://localhost/project%20Nti/api/index.php?route=suppliers",
+          "protocol": "http",
+          "host": ["localhost"],
+          "path": ["project%20Nti", "api", "index.php"],
+          "query": [
+            { "key": "route", "value": "suppliers" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. GET All Service Requests (عرض الطلبات والعروض)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json", "type": "text" }
+        ],
+        "url": {
+          "raw": "http://localhost/project%20Nti/api/index.php?route=requests",
+          "protocol": "http",
+          "host": ["localhost"],
+          "path": ["project%20Nti", "api", "index.php"],
+          "query": [
+            { "key": "route", "value": "requests" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7. POST Create Service Request (إرسال طلب خدمة جديد)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json", "type": "text" },
+          { "key": "Accept", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"تصميم وتشطيب شقة سكنية سوبر لوكس\",\n  \"specialty\": \"interior\",\n  \"unit_type\": \"شقة سكنية\",\n  \"governorate\": \"القاهرة\",\n  \"city\": \"مدينتي\",\n  \"area_sqm\": 210,\n  \"budget_range\": \"15,000 - 30,000 ج.م\",\n  \"description\": \"مطلوب تصميم 3D كامل للشقة وحصر كميات البنود والإشراف على التنفيذ.\",\n  \"customer_name\": \"أ. حسام الدين طارق\",\n  \"customer_phone\": \"01066554433\",\n  \"customer_email\": \"hossam@example.com\"\n}",
+          "options": {
+            "raw": { "language": "json" }
+          }
+        },
+        "url": {
+          "raw": "http://localhost/project%20Nti/api/index.php?route=requests",
+          "protocol": "http",
+          "host": ["localhost"],
+          "path": ["project%20Nti", "api", "index.php"],
+          "query": [
+            { "key": "route", "value": "requests" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. POST Login User (تسجيل الدخول)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json", "type": "text" },
+          { "key": "Accept", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"omar.shazly@bunyora.com\",\n  \"password\": \"password123\"\n}",
+          "options": {
+            "raw": { "language": "json" }
+          }
+        },
+        "url": {
+          "raw": "http://localhost/project%20Nti/api/index.php?route=auth/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "path": ["project%20Nti", "api", "index.php"],
+          "query": [
+            { "key": "route", "value": "auth/login" }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

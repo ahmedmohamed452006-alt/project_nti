@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light" data-language="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اطلب خدمة هندسية | BUNYORA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="request">
+
+  <header class="site-header">
+    <div class="container-custom header-inner">
+      <a href="index.html" class="brand"><img class="brand-logo" src="assets/img/bunyora-logo.webp" alt="BUNYORA"></a>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="engineers.html">المهندسين</a>
+        <a href="workers.html">العمال</a>
+        <a href="suppliers.html">الأدوات والمحلات</a>
+        <a class="active" href="request.html">اطلب خدمة</a>
+        <a href="dashboard.html">لوحة التحكم</a>
+      </nav>
+      <div class="header-actions">
+        <a class="btn-bunyora btn-bunyora-outline" href="dashboard.html">متابعة طلباتي</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container-custom" style="max-width: 780px;">
+      <div class="mb-4 text-center">
+        <span class="section-kicker">طلب خدمة هندسية</span>
+        <h1 class="section-title">خلّينا نعرف مشروعك محتاج إيه</h1>
+        <p class="section-desc">جاوب على 3 خطوات بسيطة، وهنوصل طلبك للمهندسين المتخصصين لاستقبال عروض الأسعار.</p>
+      </div>
+
+      <div id="wizard-form-container" class="hr-form-shell p-4 p-md-5">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <small id="wizard-step-label" class="fw-bold text-success">الخطوة 1 من 3</small>
+          <small class="text-muted">بياناتك محفوظة وآمنة 🔒</small>
+        </div>
+        <div class="request-progress">
+          <span class="active"></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <form id="request-wizard-form">
+          <!-- STEP 1 -->
+          <div class="wizard-step" data-step="1">
+            <h4 class="fw-bold mb-1">1. نوع الخدمة والتخصص المطلوب</h4>
+            <p class="text-muted small mb-4">حدد التخصص الهندسي ونوع العقار أو المشروع.</p>
+
+            <div class="mb-3">
+              <label class="form-label-custom">عنوان الطلب أو الخدمة المطلوبة</label>
+              <input type="text" id="req-title" class="form-control-custom" placeholder="مثال: تصميم معماري وتشطيب شقة سكنية" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label-custom">التخصص الهندسي</label>
+              <select id="req-specialty" class="form-control-custom" required></select>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label-custom">نوع الوحدة / المشروع</label>
+              <input type="hidden" id="req-unit-type" value="شقة سكنية">
+              <div class="row g-2">
+                <div class="col-6 col-md-3"><div class="request-option active text-center" data-group="unit-type" data-value="شقة سكنية">🏢 شقة سكنية</div></div>
+                <div class="col-6 col-md-3"><div class="request-option text-center" data-group="unit-type" data-value="فيلا / منزل">🏡 فيلا / منزل</div></div>
+                <div class="col-6 col-md-3"><div class="request-option text-center" data-group="unit-type" data-value="مقر إداري / تجاري">🏬 إداري / تجاري</div></div>
+                <div class="col-6 col-md-3"><div class="request-option text-center" data-group="unit-type" data-value="قطعة أرض">📐 قطعة أرض</div></div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn-bunyora btn-bunyora-primary px-4" data-next-step="2">التالي ←</button>
+            </div>
+          </div>
+
+          <!-- STEP 2 -->
+          <div class="wizard-step" data-step="2" hidden>
+            <h4 class="fw-bold mb-1">2. موقع ومساحة وتفاصيل المشروع</h4>
+            <p class="text-muted small mb-4">ساعد المهندسين في تقديم مقايسة وعرض سعر دقيق لمشروعك.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label-custom">المحافظة</label>
+                <select id="req-governorate" class="form-control-custom"></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-custom">المدينة / المنطقة</label>
+                <input type="text" id="req-city" class="form-control-custom" placeholder="مثال: التجمع الخامس، الشيخ زايد، سموحة">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-custom">المساحة التقريبية (م²)</label>
+                <input type="number" id="req-area" class="form-control-custom" placeholder="مثال: 180" value="180">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-custom">الميزانية التقديرية للخدمة</label>
+                <select id="req-budget" class="form-control-custom">
+                  <option value="يحدد بعد المعاينة">يحدد بعد المعاينة</option>
+                  <option value="أقل من 5,000 ج.م">أقل من 5,000 ج.م</option>
+                  <option value="5,000 - 15,000 ج.م">5,000 - 15,000 ج.م</option>
+                  <option value="15,000 - 30,000 ج.م">15,000 - 30,000 ج.م</option>
+                  <option value="أكثر من 30,000 ج.م">أكثر من 30,000 ج.م</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label-custom">وصف وتفاصيل إضافية عن المطلوب</label>
+              <textarea id="req-desc" rows="3" class="form-control-custom" placeholder="اكتب أي تفاصيل عن الوضع الحالي للوحدة والمطلوب تنفيذه..."></textarea>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn-bunyora btn-bunyora-outline" data-prev-step="1">→ السابق</button>
+              <button type="button" class="btn-bunyora btn-bunyora-primary px-4" data-next-step="3">التالي ←</button>
+            </div>
+          </div>
+
+          <!-- STEP 3 -->
+          <div class="wizard-step" data-step="3" hidden>
+            <h4 class="fw-bold mb-1">3. بيانات التواصل وإرسال الطلب</h4>
+            <p class="text-muted small mb-4">أدخل بياناتك لتلقي عروض المهندسين ومتابعة الطلب من لوحة التحكم.</p>
+
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label-custom">الاسم بالكامل</label>
+                <input type="text" id="req-name" class="form-control-custom" placeholder="اكتب اسمك بالكامل" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-custom">رقم الموبايل (واتساب)</label>
+                <input type="tel" id="req-phone" class="form-control-custom" placeholder="010xxxxxxxx" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label-custom">البريد الإلكتروني</label>
+                <input type="email" id="req-email" class="form-control-custom" placeholder="name@example.com" required>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn-bunyora btn-bunyora-outline" data-prev-step="2">→ السابق</button>
+              <button type="submit" class="btn-bunyora btn-bunyora-primary px-5">إرسال الطلب الآن ✓</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Success Box -->
+      <div id="wizard-success-box" class="hr-form-shell p-5 text-center" hidden>
+        <div class="display-4 mb-3">🎉</div>
+        <h3 class="fw-bold mb-2">تم إرسال طلبك بنجاح! (<span id="created-req-id" class="text-success">#103</span>)</h3>
+        <p class="text-muted mb-4">تم تسجيل طلبك وإرساله للمهندسين المتخصصين. يمكنك الآن متابعة حالة الطلب ومقارنة العروض من لوحة التحكم.</p>
+        <div class="d-flex justify-content-center gap-3">
+          <a href="dashboard.html" class="btn-bunyora btn-bunyora-primary">الذهاب للوحة التحكم ومتابعة الطلب ←</a>
+          <a href="index.html" class="btn-bunyora btn-bunyora-outline">العودة للرئيسية</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container-custom">
+      <div class="footer-bottom mt-0 pt-0 border-0">
+        <span>© 2026 BUNYORA — مشروع تخرج NTI</span>
+        <a href="index.html">العودة للرئيسية ←</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/preferences.js"></script>
+</body>
+</html>

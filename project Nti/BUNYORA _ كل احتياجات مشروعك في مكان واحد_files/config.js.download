@@ -1,0 +1,297 @@
+// window.hatchable.config — the auto-modal runtime that catches
+// SetupRequired responses.
+//
+// Auto-injected into every project's <head> by DeployService::headInjection.
+//
+// The gateway answers 412 { hint: "setup_required", key, setup_url } when a
+// function needs a value the owner has not set. The deployed app's fetch()
+// calls go through whatever code the agent wrote, which may not handle 412,
+// so window.fetch is patched: a setup_required 412 shows a small modal that
+// links to the console Setup page, where the owner sets the value, and the
+// original response is returned to the caller unchanged.
+//
+// Values are set in the console only (2026-11-12). The old inline paste
+// (save(), the paste form, <hatchable-config-prompt>) wrote to the on-site
+// /__hatchable/secrets endpoint, which now answers 410. save() and the
+// element are kept as stubs so apps that call them fail politely.
+//
+// Styling matches the rest of the platform's neutral cards. Templates
+// can override via custom CSS targeting `.hatchable-config-modal`.
+
+(function () {
+  if (window.hatchable && window.hatchable.config) return;
+  window.hatchable = window.hatchable || {};
+
+  const cfg = (window.__HATCHABLE__ = window.__HATCHABLE__ || {});
+  const SLUG = cfg.slug || '';
+
+  // ---------------------------------------------------------------------
+  // session-scoped suppression — once the user picks "don't show again
+  // this session" for a key, stop popping the modal for it. Keyed PER KEY
+  // (one app may surface several different missing keys; silencing one
+  // shouldn't hide the others). Backed by sessionStorage so it clears when
+  // the tab closes; falls back to an in-memory set when storage throws
+  // (private mode, sandboxed iframe).
+  // ---------------------------------------------------------------------
+  const DISMISS_STORE = 'hatchable:setup-dismissed';
+  const memDismissed = new Set();
+
+  function isDismissed(key) {
+    if (memDismissed.has(key)) return true;
+    try {
+      const raw = window.sessionStorage.getItem(DISMISS_STORE);
+      return raw ? JSON.parse(raw).includes(key) : false;
+    } catch { return false; }
+  }
+  function markDismissed(key) {
+    memDismissed.add(key);
+    try {
+      const raw = window.sessionStorage.getItem(DISMISS_STORE);
+      const arr = raw ? JSON.parse(raw) : [];
+      if (!arr.includes(key)) {
+        arr.push(key);
+        window.sessionStorage.setItem(DISMISS_STORE, JSON.stringify(arr));
+      }
+    } catch { /* memDismissed already covers this session */ }
+  }
+
+  // Append a `from` so the console's "Continue to app →" can round-trip
+  // the owner back here after they paste. Mirrors the old auto-redirect.
+  function withFrom(url) {
+    try {
+      const u = new URL(url, window.location.origin);
+      if (!u.searchParams.has('from')) u.searchParams.set('from', window.location.href);
+      return u.toString();
+    } catch { return url; }
+  }
+
+  // ---------------------------------------------------------------------
+  // modal scheduling — ONE modal on screen at a time, and concurrent 412s
+  // for the SAME key share a single dialog (a page firing five parallel
+  // reads of one unset key must not stack five identical modals). `chain`
+  // serializes distinct keys; `inFlight` coalesces same-key callers.
+  // ---------------------------------------------------------------------
+  let chain = Promise.resolve();
+  const inFlight = new Map();
+
+  function requestModal(descriptor) {
+    const key = descriptor.key;
+    if (inFlight.has(key)) return inFlight.get(key);
+    const p = chain.then(() => openModal(descriptor));
+    chain = p.catch(() => {});               // a thrown modal must not wedge the queue
+    inFlight.set(key, p);
+    const done = () => inFlight.delete(key);
+    p.then(done, done);
+    return p;
+  }
+
+  // ---------------------------------------------------------------------
+  // imperative API
+  // ---------------------------------------------------------------------
+
+  // Values are set in the console only; the on-site write endpoint this
+  // used answers 410. Kept so an app that calls it gets a clear error.
+  async function save(key) {
+    const e = new Error(`hatchable.config.save: ${key || 'this value'} is set by the project owner on the Setup page of the Hatchable console.`);
+    e.status = 410;
+    e.setup_url = consoleSetupUrl(key);
+    throw e;
+  }
+
+  function consoleSetupUrl(key) {
+    let url = `https://hatchable.com/console/projects/${encodeURIComponent(SLUG)}/setup?gate=1`;
+    if (key) url += `&key=${encodeURIComponent(key)}`;
+    return url;
+  }
+
+  // Open the setup modal for a key: it explains and links to the console.
+  // Resolves false (nothing is saved from this page).
+  function prompt(key, opts = {}) {
+    return requestModal({
+      key,
+      setup_url: withFrom(opts.setup_url || consoleSetupUrl(key)),
+      label: opts.label || null,
+      description: opts.description || null,
+    }).then(() => false);
+  }
+
+  // ---------------------------------------------------------------------
+  // fetch interceptor — turns 412 setup_required into the setup modal
+  // ---------------------------------------------------------------------
+
+  const _fetch = window.fetch.bind(window);
+  window.fetch = async function patchedFetch(input, init) {
+    const response = await _fetch(input, init);
+
+    // Cheap branch: only inspect 412s that claim JSON. Body can only be
+    // read once, so we clone first.
+    if (response.status !== 412) return response;
+    const ct = response.headers.get('content-type') || '';
+    if (!ct.toLowerCase().includes('application/json')) return response;
+
+    let payload = null;
+    try { payload = await response.clone().json(); } catch { /* */ }
+    if (!payload || payload.hint !== 'setup_required' || !payload.key) {
+      return response;
+    }
+
+    const key = payload.key;
+    // Silenced for this session → behave exactly as if un-patched.
+    if (isDismissed(key)) return response;
+
+    // One modal at a time; same-key 412s coalesce (see requestModal). The
+    // caller always gets the original 412 and degrades its own way.
+    try {
+      await requestModal({
+        key,
+        setup_url: withFrom(payload.setup_url || consoleSetupUrl(key)),
+        label: payload.label || null,
+        description: payload.description || null,
+      });
+    } catch { /* */ }
+    return response;
+  };
+
+  // ---------------------------------------------------------------------
+  // modal — minimal, neutral, styleable
+  // ---------------------------------------------------------------------
+
+  let modalRoot = null;
+
+  function ensureRoot() {
+    if (modalRoot) return modalRoot;
+    modalRoot = document.createElement('div');
+    modalRoot.className = 'hatchable-config-modal-root';
+    modalRoot.style.cssText = 'position:fixed;inset:0;z-index:2147483646;display:none;';
+    const styles = document.createElement('style');
+    styles.textContent = `
+      .hatchable-config-modal-root { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+      .hatchable-config-modal-backdrop {
+        position:absolute; inset:0; background:rgba(15,23,42,0.55);
+        backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      }
+      .hatchable-config-modal {
+        position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+        width: min(440px, calc(100vw - 32px));
+        background: #fff8e9; color: #252521;
+        border:1px solid #ecdda7; border-radius:14px;
+        box-shadow: 0 24px 48px rgba(0,0,0,0.18); padding:24px;
+      }
+      .hatchable-config-modal h3 {
+        margin:0 0 6px; font-size:18px; font-weight:600; line-height:1.2;
+      }
+      .hatchable-config-modal p {
+        margin:0 0 16px; font-size:14px; color:#6b6457; line-height:1.5;
+      }
+      .hatchable-config-modal code {
+        font-family:"JetBrains Mono",ui-monospace,monospace; font-size:12px;
+        background:rgba(0,0,0,0.05); padding:1px 6px; border-radius:4px;
+      }
+      .hatchable-config-modal button {
+        font: inherit; cursor:pointer;
+        border-radius:8px; padding:9px 14px; font-size:13px; font-weight:500;
+      }
+      .hatchable-config-modal button.hatchable-config-secondary {
+        background:transparent; color:#6b6457; border:1px solid transparent;
+      }
+      .hatchable-config-modal .hatchable-config-actions {
+        display:flex; gap:8px; justify-content:flex-end; margin-top:16px; align-items:center;
+      }
+      .hatchable-config-modal .hatchable-config-suppress {
+        display:flex; align-items:center; gap:6px; margin-top:14px;
+        font-size:12px; color:#6b6457; cursor:pointer; user-select:none;
+      }
+      .hatchable-config-modal .hatchable-config-suppress input { width:auto; margin:0; }
+      .hatchable-config-modal a.hatchable-config-primary-link {
+        background:#385c47; color:#fdfaf3; border:1px solid #2c4a39;
+        border-radius:8px; padding:9px 14px; font-size:13px; font-weight:500;
+        text-decoration:none; display:inline-block;
+      }
+    `;
+    document.head.appendChild(styles);
+    document.body.appendChild(modalRoot);
+    return modalRoot;
+  }
+
+  // Render the SetupRequired dialog: the value can't be set from this
+  // domain, so explain and deep-link to the console Setup page. "Open
+  // setup →" is a real anchor; the browser navigates and the owner
+  // round-trips back via the ?from= param. Resolves { dismissed } —
+  // `dismissed` records a checked "don't show again this session".
+  function openModal({ key, setup_url, label, description }) {
+    return new Promise((resolve) => {
+      const root = ensureRoot();
+      root.style.display = 'block';
+      root.innerHTML = '';
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'hatchable-config-modal-backdrop';
+      const modal = document.createElement('div');
+      modal.className = 'hatchable-config-modal';
+
+      const named = `<code>${escapeHtml(label || key)}</code>`;
+      const body = description
+        ? escapeHtml(description)
+        : `This app needs ${named} set up before this part of the app will work.`;
+      modal.innerHTML = `
+        <h3>Setup needed</h3>
+        <p>${body}</p>
+        <label class="hatchable-config-suppress"><input type="checkbox" /> Don't show this again this session</label>
+        <div class="hatchable-config-actions">
+          <button type="button" class="hatchable-config-secondary">Not now</button>
+          <a class="hatchable-config-primary-link">Open setup →</a>
+        </div>
+      `;
+      // The href is set here, not in the template above: a crawler that
+      // scans this file's text for href="..." found the template's
+      // placeholder and requested it as a page (2026-11-14).
+      modal.querySelector('.hatchable-config-primary-link').setAttribute('href', setup_url);
+      root.append(backdrop, modal);
+
+      const suppress = modal.querySelector('.hatchable-config-suppress input');
+
+      function finish() {
+        if (suppress.checked) markDismissed(key);
+        root.style.display = 'none';
+        root.innerHTML = '';
+        resolve({ dismissed: suppress.checked });
+      }
+
+      backdrop.addEventListener('click', finish);
+      modal.querySelector('.hatchable-config-secondary').addEventListener('click', finish);
+      modal.addEventListener('keydown', (e) => { if (e.key === 'Escape') finish(); });
+      // Record a checked suppression before the page unloads, then let the
+      // anchor navigate normally.
+      modal.querySelector('.hatchable-config-primary-link').addEventListener('click', () => {
+        if (suppress.checked) markDismissed(key);
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+  }
+
+  window.hatchable.config = { save, prompt };
+
+  // ---------------------------------------------------------------------
+  // <hatchable-config-prompt key="…"> — retired inline paste form
+  // ---------------------------------------------------------------------
+  //
+  // Rendered a paste box that saved through the on-site endpoint, which
+  // answers 410 now that values are set in the console only. Defined as
+  // an empty element so pages that still carry the tag show nothing
+  // instead of a form that cannot save.
+
+  if (!customElements.get('hatchable-config-prompt')) {
+    class HatchableConfigPrompt extends HTMLElement {
+      connectedCallback() {
+        const key = (this.getAttribute('key') || '').trim();
+        console.warn(`<hatchable-config-prompt>: ${key || 'values'} are set by the project owner on the Setup page of the Hatchable console; this element no longer renders.`);
+      }
+    }
+    customElements.define('hatchable-config-prompt', HatchableConfigPrompt);
+  }
+})();

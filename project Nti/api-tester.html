@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اختبار الـ API (Postman Web Tester) | BUNYORA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .postman-badge-get { background: #0d8b70; color: #fff; font-weight: 900; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-family: monospace; }
+    .postman-badge-post { background: #d59c36; color: #091929; font-weight: 900; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-family: monospace; }
+    .endpoint-btn { width: 100%; text-align: right; border: 1px solid var(--line); background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; transition: .2s; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .endpoint-btn:hover, .endpoint-btn.active { border-color: var(--green); background: var(--green-soft); transform: translateX(-3px); }
+    .json-box { direction: ltr; text-align: left; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; background: #0b1926; color: #80f5d4; border-radius: 14px; padding: 18px; min-height: 320px; max-height: 520px; overflow: auto; white-space: pre-wrap; border: 1px solid #233b4e; }
+    .url-bar { direction: ltr; text-align: left; font-family: monospace; background: #f2f6f9; border: 1px solid #d6e1e8; border-radius: 10px; padding: 10px 14px; font-weight: 700; color: #0d2136; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container-custom header-inner">
+      <a href="index.html" class="brand"><img class="brand-logo" src="assets/img/Bunyora Architectural Monogram Logo.webp" alt="BUNYORA"></a>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="engineers.html">المهندسين</a>
+        <a href="workers.html">العمال</a>
+        <a href="suppliers.html">الأدوات والمحلات</a>
+        <a href="dashboard.html">لوحة التحكم</a>
+        <a class="active" href="api-tester.html">⚡ اختبار الـ API (Postman)</a>
+      </nav>
+      <div class="header-actions">
+        <a class="btn-bunyora btn-bunyora-primary" href="index.html">العودة للرئيسية ←</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-hero">
+    <div class="container-custom">
+      <span class="badge bg-warning text-dark fw-bold mb-2">BUNYORA RESTful API Tester</span>
+      <h1>محاكي Postman لاختبار الـ APIs مباشرة</h1>
+      <p>اختبر جميع مسارات الباك إند (GET & POST) المربوطة بقاعدة بيانات MySQL `bunyora_db` بضغطة زر واحدة بدون أي تعقيد.</p>
+    </div>
+  </section>
+
+  <main class="section">
+    <div class="container-custom">
+      <div class="row g-4">
+        <!-- Sidebar: Endpoints List -->
+        <div class="col-lg-4">
+          <div class="panel-card">
+            <h2>اختر الـ Endpoint لاختباره</h2>
+            <p class="text-muted small mb-3">اضغط على أي طلب من القائمة ثم اضغط <b>"إرسال الطلب (Send)"</b>:</p>
+
+            <div id="endpoints-list">
+              <button type="button" class="endpoint-btn active" data-idx="0">
+                <div>
+                  <b class="d-block small">1. التخصصات وإحصائيات المنصة</b>
+                  <small class="text-muted">/api/catalog</small>
+                </div>
+                <span class="postman-badge-get">GET</span>
+              </button>
+
+              <button type="button" class="endpoint-btn" data-idx="1">
+                <div>
+                  <b class="d-block small">2. عرض جميع المهندسين</b>
+                  <small class="text-muted">/api/engineers</small>
+                </div>
+                <span class="postman-badge-get">GET</span>
+              </button>
+
+              <button type="button" class="endpoint-btn" data-idx="2">
+                <div>
+                  <b class="d-block small">3. ملف مهندس واحد بالتفصيل</b>
+                  <small class="text-muted">/api/engineers/1</small>
+                </div>
+                <span class="postman-badge-get">GET</span>
+              </button>
+
+              <button type="button" class="endpoint-btn" data-idx="3">
+                <div>
+                  <b class="d-block small">4. دليل العمال والصنايعية</b>
+                  <small class="text-muted">/api/workers</small>
+                </div>
+                <span class="postman-badge-get">GET</span>
+              </button>
+
+              <button type="button" class="endpoint-btn" data-idx="4">
+                <div>
+                  <b class="d-block small">5. دليل الأدوات والمحلات</b>
+                  <small class="text-muted">/api/suppliers</small>
+                </div>
+                <span class="postman-badge-get">GET</span>
+              </button>
+
+              <button type="button" class="endpoint-btn" data-idx="5">
+                <div>
+                  <b class="d-block small">6. عرض طلبات الخدمات والعروض</b>
+                  <small class="text-muted">/api/requests</small>
+                </div>
+                <span class="postman-badge-get">GET</span>
+              </button>
+
+              <button type="button" class="endpoint-btn" data-idx="6">
+                <div>
+                  <b class="d-block small">7. إضافة طلب خدمة جديد للداتا بيز</b>
+                  <small class="text-muted">/api/requests</small>
+                </div>
+                <span class="postman-badge-post">POST</span>
+              </button>
+
+              <button type="button" class="endpoint-btn" data-idx="7">
+                <div>
+                  <b class="d-block small">8. تسجيل الدخول وإصدار Token</b>
+                  <small class="text-muted">/api/auth/login</small>
+                </div>
+                <span class="postman-badge-post">POST</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Request & Response Panel -->
+        <div class="col-lg-8">
+          <div class="panel-card">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+              <h2 id="req-title" class="mb-0">1. التخصصات وإحصائيات المنصة</h2>
+              <span id="status-pill" class="badge-status badge-green">Status: 200 OK</span>
+            </div>
+
+            <!-- URL + Send Button -->
+            <div class="d-flex gap-2 align-items-center mb-3">
+              <span id="req-method" class="postman-badge-get py-2 px-3">GET</span>
+              <input type="text" id="req-url" class="url-bar flex-grow-1" readonly value="http://localhost/project%20Nti/api/index.php?route=catalog">
+              <button type="button" id="send-api-btn" class="btn-bunyora btn-bunyora-primary px-4">
+                Send Request 🚀
+              </button>
+            </div>
+
+            <!-- Request Body (for POST) -->
+            <div id="req-body-wrap" class="mb-3" hidden>
+              <label class="form-label-custom">Request JSON Body (بيانات الطلب المرسلة للسيرفر):</label>
+              <textarea id="req-body" rows="5" class="form-control-custom" style="direction:ltr;text-align:left;font-family:monospace;"></textarea>
+            </div>
+
+            <!-- Live JSON Response -->
+            <label class="form-label-custom">JSON Response (الرد القادم من قاعدة بيانات MySQL `bunyora_db`):</label>
+            <pre id="json-response" class="json-box">اضغط "Send Request 🚀" لعرض البيانات القادمة من قاعدة البيانات...</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    const BASE_API = "api/index.php?route=";
+    const DISPLAY_ORIGIN = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "/") + "api/index.php?route=";
+    const endpoints = [
+      { title: "1. التخصصات وإحصائيات المنصة", method: "GET", route: "specialties", body: null },
+      { title: "2. عرض جميع المهندسين", method: "GET", route: "engineers", body: null },
+      { title: "3. لوحة تحكم الأدمن الشاملة", method: "GET", route: "admin/overview", body: null },
+      { title: "4. دليل العمال والصنايعية", method: "GET", route: "workers", body: null },
+      { title: "5. دليل الأدوات والمحلات", method: "GET", route: "suppliers", body: null },
+      { title: "6. عرض طلبات الخدمات والعروض", method: "GET", route: "requests", body: null },
+      {
+        title: "7. إضافة طلب خدمة جديد للداتا بيز",
+        method: "POST",
+        route: "requests",
+        body: {
+          title: "تصميم وتشطيب شقة سكنية 200 متر",
+          specialty: "interior",
+          unit_type: "شقة سكنية",
+          governorate: "القاهرة",
+          city: "التجمع الخامس",
+          area_sqm: 200,
+          budget_range: "15,000 - 30,000 ج.م",
+          description: "طلب مرسل من صفحة اختبار الـ API ومخزن مباشرة في قاعدة البيانات.",
+          customer_name: "أ. زياد طارق",
+          customer_phone: "01012345678"
+        }
+      },
+      {
+        title: "8. تسجيل الدخول وإصدار Token",
+        method: "POST",
+        route: "auth/login",
+        body: {
+          email: "omar@bunyora.com",
+          password: "password123"
+        }
+      }
+    ];
+
+    let activeIdx = 0;
+    const btns = document.querySelectorAll(".endpoint-btn");
+    const titleEl = document.getElementById("req-title");
+    const methodEl = document.getElementById("req-method");
+    const urlEl = document.getElementById("req-url");
+    const bodyWrap = document.getElementById("req-body-wrap");
+    const bodyEl = document.getElementById("req-body");
+    const respEl = document.getElementById("json-response");
+    const statusPill = document.getElementById("status-pill");
+    const sendBtn = document.getElementById("send-api-btn");
+
+    function selectEndpoint(idx) {
+      activeIdx = idx;
+      const ep = endpoints[idx];
+      btns.forEach((b, i) => b.classList.toggle("active", i === idx));
+      titleEl.textContent = ep.title;
+      methodEl.textContent = ep.method;
+      methodEl.className = ep.method === "GET" ? "postman-badge-get py-2 px-3" : "postman-badge-post py-2 px-3";
+      urlEl.value = BASE_API + ep.route;
+      if (ep.body) {
+        bodyWrap.hidden = false;
+        bodyEl.value = JSON.stringify(ep.body, null, 2);
+      } else {
+        bodyWrap.hidden = true;
+      }
+      sendRequest();
+    }
+
+    async function sendRequest() {
+      const ep = endpoints[activeIdx];
+      respEl.textContent = "⏳ جاري الاتصال بـ MySQL (bunyora_db)...";
+      try {
+        const options = { method: ep.method, headers: { "Accept": "application/json" } };
+        if (ep.method === "POST") {
+          options.headers["Content-Type"] = "application/json";
+          options.body = bodyEl.value;
+        }
+        const res = await fetch(urlEl.value, options);
+        const data = await res.json();
+        statusPill.textContent = `Status: ${res.status} ${res.ok ? 'OK' : 'Error'}`;
+        respEl.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        statusPill.textContent = "تأكد من تشغيل Apache في XAMPP";
+        respEl.textContent = "⚠️ لتشغيل الـ API الحية، تأكد أن Apache و MySQL يعملان في XAMPP ثم افتح الصفحة عبر الرابط:\nhttp://localhost/project%20Nti/api-tester.html";
+      }
+    }
+
+    btns.forEach(btn => {
+      btn.addEventListener("click", () => selectEndpoint(Number(btn.dataset.idx)));
+    });
+    sendBtn.addEventListener("click", sendRequest);
+    selectEndpoint(0);
+  </script>
+</body>
+</html>

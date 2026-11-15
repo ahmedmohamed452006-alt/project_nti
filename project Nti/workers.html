@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light" data-language="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دليل العمال والصنايعية | BUNYORA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="workers">
+
+  <header class="site-header">
+    <div class="container-custom header-inner">
+      <a href="index.html" class="brand"><img class="brand-logo" src="assets/img/bunyora-logo.webp" alt="BUNYORA"></a>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="engineers.html">المهندسين</a>
+        <a class="active" href="workers.html">العمال</a>
+        <a href="suppliers.html">الأدوات والمحلات</a>
+        <a href="request.html">اطلب خدمة</a>
+        <a href="dashboard.html">لوحة التحكم</a>
+      </nav>
+      <div class="header-actions">
+        <a class="btn-bunyora btn-bunyora-outline" href="register.html?type=worker">انضم كصنايعي</a>
+        <a class="btn-bunyora btn-bunyora-primary" href="request.html">ابدأ طلبك</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="directory-hero">
+    <div class="container-custom">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-7">
+          <span class="section-kicker">التنفيذ والتشطيبات</span>
+          <h1>دليل العمال والصنايعية</h1>
+          <p>ابحث عن أفضل الصنايعية والفنيين في جميع بنود التأسيس والتشطيب: كهرباء، سباكة، سيراميك، دهانات، نجارة، جبس بورد، ألوميتال وعزل.</p>
+          <div class="directory-count">
+            <b id="workers-count">9</b>
+            <span>فني وصنايعي مسجّل ومتاح للتواصل المباشر</span>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="directory-hero-art">
+            <div class="directory-art-icon">👷</div>
+            <span>فنيون وصنايعية لكل مراحل التشطيب</span>
+            <small>اختر التخصص وتواصل مباشرة أو اطلب إشراف هندسي</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="section">
+    <div class="container-custom">
+      <!-- Search Toolbar -->
+      <div class="d-flex flex-wrap gap-3 mb-3">
+        <div class="directory-search">
+          <span>🔎</span>
+          <input type="text" id="workers-search" placeholder="ابحث عن كهربائي، سباك، سيراميك، جبس بورد، أو اسم المدينة...">
+        </div>
+        <a href="register.html?type=worker" class="btn-bunyora btn-bunyora-primary">سجّل نفسك كصنايعي +</a>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="directory-groups mb-4" id="workers-groups"></div>
+
+      <!-- Cards Grid -->
+      <div class="row g-3" id="workers-grid"></div>
+
+      <!-- Selected Worker Detail Box -->
+      <div class="panel-card mt-4" id="worker-detail-panel" style="background: #f8fbf9; border-color: #cfe5da;"></div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container-custom">
+      <div class="footer-bottom mt-0 pt-0 border-0">
+        <span>© 2026 BUNYORA — مشروع تخرج NTI</span>
+        <a href="index.html">العودة للرئيسية ←</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/preferences.js"></script>
+</body>
+</html>

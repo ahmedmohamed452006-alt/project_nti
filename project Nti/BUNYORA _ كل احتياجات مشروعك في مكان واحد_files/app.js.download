@@ -1,0 +1,84 @@
+const API = "/api";
+window.money = value => value == null ? "يحدد بعد المعاينة" : Number(value).toLocaleString("ar-EG") + " ج.م";
+window.safeText = value => value == null ? "" : String(value);
+window.statusLabel = status => ({pending:"قيد المراجعة",approved:"معتمد",rejected:"مرفوض",accepted:"تم القبول",completed:"مكتمل",open:"مفتوح",offers_received:"وصلت ردود",selected:"تم اختيار مهندس",cancelled:"ملغي",not_selected:"لم يتم الاختيار",withdrawn:"تم سحب الرد",resolved:"تم الحل",dismissed:"مغلق"}[status] || status);
+window.api = async function (url, options = {}) {
+  const response = await fetch(API + url, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "حدث خطأ غير متوقع.");
+  return data;
+};
+function queryString(values) {
+  const params = new URLSearchParams();
+  Object.entries(values).forEach(([key, value]) => { if (value !== "" && value != null && value !== false) params.set(key, value); });
+  return params.toString();
+}
+window.homePage = function () {
+  return {
+    categories: [], engineers: [], governorates: [], loading: true,
+    service: "", governorate: "",
+    popularServices: [
+      { name:"تصميم معماري", subtitle:"فكرة ومخططات المبنى", specialty:"architecture", icon:"⌂", tone:"mint" },
+      { name:"تصميم داخلي", subtitle:"تخطيط المساحات والديكور", specialty:"interior", icon:"▧", tone:"sand" },
+      { name:"تصميم إنشائي", subtitle:"حسابات ورسومات إنشائية", specialty:"structural", icon:"⌗", tone:"blue" },
+      { name:"إشراف هندسي", subtitle:"متابعة التنفيذ والجودة", specialty:"civil", icon:"▥", tone:"teal" },
+      { name:"مخططات كهربائية", subtitle:"قوى وإضاءة وأنظمة", specialty:"electrical", icon:"ϟ", tone:"lilac" },
+      { name:"تصميم تكييف وتهوية", subtitle:"حساب الأحمال والأنظمة", specialty:"hvac", icon:"❄", tone:"blue" },
+      { name:"حصر كميات ومقايسات", subtitle:"جداول كميات وتكلفة", specialty:"quantity-surveying", icon:"▤", tone:"sand" },
+      { name:"إدارة مشروعات", subtitle:"تخطيط وجدولة ومتابعة", specialty:"project-management", icon:"◷", tone:"mint" }
+    ],
+    async init() {
+      try {
+        const [catalog, featured] = await Promise.all([api("/catalog"), api("/engineers?featured=true")]);
+        this.categories = catalog.categories || [];
+        this.governorates = catalog.governorates || [];
+        this.engineers = featured.engineers || [];
+      } catch (e) { console.error(e); }
+      this.loading = false;
+    },
+    startRequest() {
+      const item = this.popularServices.find(s => s.name === this.service);
+      if (!item) { location.href = "/request.html"; return; }
+      const qs = queryString({ specialty:item.specialty, service:item.name, governorate:this.governorate });
+      location.href = "/request.html" + (qs ? "?" + qs : "");
+    }
+  };
+};
+window.engineersPage = function () {
+  return {
+    categories: [], governorates: [], engineers: [], total: 0, pages: 1, page: 1, loading: true, error: "",
+    filters: { q:"", specialty:"", governorate:"", city:"", years:"", rating:"", service:"", verified:false, sort:"relevant" },
+    async init() {
+      const params = new URLSearchParams(location.search);
+      for (const key of Object.keys(this.filters)) {
+        if (params.has(key)) this.filters[key] = key === "verified" ? params.get(key) === "true" : params.get(key);
+      }
+      try {
+        const catalog = await api("/catalog");
+        this.categories = catalog.categories || [];
+        this.governorates = catalog.governorates || [];
+      } catch (e) { this.error = e.message; }
+      await this.search();
+    },
+    async search(nextPage = 1) {
+      this.loading = true; this.error = ""; this.page = nextPage;
+      try {
+        const qs = queryString({ ...this.filters, page: this.page });
+        const data = await api("/engineers?" + qs);
+        this.engineers = data.engineers || []; this.total = data.total || 0; this.pages = Math.max(1, data.pages || 1);
+        const clean = queryString(this.filters);
+        history.replaceState({}, "", "/engineers.html" + (clean ? "?" + clean : ""));
+      } catch (e) { this.error = e.message; this.engineers = []; }
+      this.loading = false;
+    },
+    reset() { this.filters = { q:"", specialty:"", governorate:"", city:"", years:"", rating:"", service:"", verified:false, sort:"relevant" }; this.search(); }
+  };
+};
+window.engineerCard = function (engineer) { return engineer; };
+window.headerMenu = function () { return { open:false, toggle(){this.open=!this.open;} }; };
+window.categoryIcon = function (slug) {
+  return {architecture:"⌂",civil:"▥",structural:"⌗",electrical:"ϟ",mechanical:"⚙",interior:"▧",hvac:"❄",surveying:"⌖","project-management":"◷","quantity-surveying":"▤"}[slug] || "◈";
+};

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light" data-language="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d2136">
+  <meta name="description" content="BUNYORA — بونيرا نربط الخبرة ونبني المستقبل. منصتك المتكاملة للمهندسين والصنايعية ومحلات وموردي خامات البناء في مكان واحد.">
+  <title>BUNYORA | بونيرا .. نربط الخبرة، ونبني المستقبل</title>
+  <!-- Bootstrap 5.3 RTL CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
+  <!-- Custom BUNYORA Styles -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="home" id="top">
+
+  <!-- Top Architectural Announcement Bar -->
+  <div class="top-promo-bar">
+    <div class="container-custom top-promo-inner">
+      <div>
+        <span class="top-promo-badge">BUNYORA 2026</span>
+        <span>بونيرا .. نربط الخبرة، ونبني المستقبل — أول منصة متكاملة تجمع المهندس، الصنايعي، والمورد في مكان واحد.</span>
+      </div>
+      <div class="top-promo-links d-none d-md-flex">
+        <a href="#cost-estimator">🧮 حاسبة تكلفة التشطيب</a>
+        <a href="api-tester.html">⚡ اختبار الـ API (Postman)</a>
+        <a href="dashboard.html">📊 متابعة الطلبات</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium Glassmorphism Sticky Navbar -->
+  <header class="site-header">
+    <div class="container-custom header-inner">
+      <a href="index.html" class="brand" title="BUNYORA | Build Connections. Shape The Future.">
+        <img class="brand-logo" src="assets/img/Bunyora Architectural Monogram Logo.webp" alt="BUNYORA Logo">
+      </a>
+
+      <nav class="nav-links" aria-label="التنقل الرئيسي">
+        <a class="active" href="index.html">الرئيسية</a>
+        <a href="engineers.html">المهندسين</a>
+        <a href="workers.html">العمال والصنايعية</a>
+        <a href="suppliers.html">الأدوات والمحلات</a>
+        <a href="#cost-estimator">حاسبة التكلفة</a>
+        <a href="request.html">اطلب خدمة</a>
+        <a href="dashboard.html">لوحة التحكم</a>
+      </nav>
+
+      <div class="header-actions">
+        <button type="button" class="nav-icon-btn" id="nav-theme-toggle-btn" title="تبديل الوضع الليلي / النهاري" aria-label="تبديل المظهر">
+          🌓
+        </button>
+        <a class="btn-bunyora btn-bunyora-outline d-none d-sm-inline-flex" href="login.html">تسجيل الدخول</a>
+        <a class="btn-bunyora btn-bunyora-primary" href="request.html">ابدأ طلبك <span>←</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==========================================
+         1. HERO SECTION + SMART FINDER + HIGH-RES VISUALS
+         ========================================== -->
+    <section class="classic-hero">
+      <div class="container-custom position-relative" style="z-index: 2;">
+        <div class="row align-items-center g-5">
+          <!-- Hero Copy & Interactive Finder -->
+          <div class="col-lg-6 classic-hero-copy">
+            <span class="classic-eyebrow">
+              <i></i>
+              منصتك الهندسية لكل احتياجات البناء والتشطيب
+            </span>
+
+            <h1>
+              مشروعك في إيد أمينة<br>
+              <span class="text-gradient-green">من أول فكرة لحد التنفيذ.</span>
+            </h1>
+
+            <p>
+              اوصل للمهندس الاستشاري المعتمد، اختار الصنايعي المحترف اللي محتاجه، وقارن أسعار محلات الخامات والمعدات — كل ده من مكان واحد وبخطوات ذكية وسريعة.
+            </p>
+
+            <!-- Interactive Smart Finder Widget -->
+            <div class="hero-smart-finder">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <div class="finder-tabs" role="tablist">
+                  <button type="button" class="finder-tab active" data-target="engineers">📐 أبحث عن مهندس</button>
+                  <button type="button" class="finder-tab" data-target="workers">👷 أبحث عن صنايعي</button>
+                  <button type="button" class="finder-tab" data-target="suppliers">🏪 أبحث عن خامات ومحل</button>
+                </div>
+                <span class="small text-muted fw-bold d-none d-sm-inline">⚡ بحث فوري</span>
+              </div>
+
+              <form id="hero-finder-form" class="finder-grid">
+                <div class="finder-field">
+                  <label for="finder-category">التخصص أو البند المطلوب</label>
+                  <select id="finder-category"></select>
+                </div>
+                <div class="finder-field">
+                  <label for="finder-gov">المحافظة / النطاق</label>
+                  <select id="finder-gov">
+                    <option value="">كل المحافظات</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn-bunyora btn-bunyora-primary btn-bunyora-lg h-100">
+                  استكشف الآن ←
+                </button>
+              </form>
+            </div>
+
+            <div class="classic-trust">
+              <span>✓</span> مهندسون موثقون بنقابة المهندسين
+              <span>✓</span> مقارنة عروض أسعار شفافة
+              <span>✓</span> دليل شامل من التخطيط للتسليم
+            </div>
+          </div>
+
+          <!-- Hero High-Res 3D Architectural Showcase -->
+          <div class="col-lg-6">
+            <div class="hero-visual-stage">
+              <!-- Floating Badge Top -->
+              <div class="hero-floating-badge hero-badge-top">
+                <div class="hero-badge-icon">🛡️</div>
+                <div>
+                  <b>توثيق ومراجعة هندسية 100%</b>
+                  <small>فحص كارنيه النقابة وسابقة الأعمال</small>
+                </div>
+              </div>
+
+              <!-- High-Res Light & Dark Artwork -->
+              <div class="hero-visual-frame">
+                <img class="bunyora-hero-light" src="assets/img/Bunyora_ Building the Future.png" alt="BUNYORA — نربط الخبرة، ونبني المستقبل (الوضع النهاري)" fetchpriority="high">
+                <img class="bunyora-hero-dark" src="assets/img/Bunyora_ Building the Future.webp" alt="BUNYORA — نربط الخبرة، ونبني المستقبل (الوضع الليلي)">
+              </div>
+
+              <!-- Floating Badge Bottom -->
+              <div class="hero-floating-badge hero-badge-bottom">
+                <div class="hero-badge-icon gold">★</div>
+                <div>
+                  <b>تقييم 4.9 من 5 بواسطة العملاء</b>
+                  <small>أكثر من 540 مشروع واستشارة ناجحة</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         2. LIVE ANIMATED STATISTICS COUNTER STRIP
+         ========================================== -->
+    <section class="stats-counter-strip reveal-on-scroll">
+      <div class="container-custom">
+        <div class="stats-strip-box">
+          <div class="row g-3 align-items-center">
+            <div class="col-6 col-lg-3">
+              <div class="counter-item">
+                <div class="counter-icon">📐</div>
+                <div>
+                  <div class="counter-number" data-counter-target="150">+150</div>
+                  <div class="counter-label">مهندس ومكتب استشاري معتمد</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="counter-item">
+                <div class="counter-icon">👷</div>
+                <div>
+                  <div class="counter-number" data-counter-target="320">+320</div>
+                  <div class="counter-label">صنايعي وفني في كافة البنود</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="counter-item">
+                <div class="counter-icon">🏪</div>
+                <div>
+                  <div class="counter-number" data-counter-target="95">+95</div>
+                  <div class="counter-label">معرض ومورد خامات ومعدات</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="counter-item last-counter">
+                <div class="counter-icon">🤝</div>
+                <div>
+                  <div class="counter-number" data-counter-target="540">+540</div>
+                  <div class="counter-label">مشروع وعرض سعر مكتمل</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         3. QUICK ACCESS (3 MAIN PILLARS OF BUNYORA)
+         ========================================== -->
+    <section class="quick-access-section reveal-on-scroll">
+      <div class="container-custom">
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">منظومة BUNYORA المتكاملة</span>
+            <h2 class="section-title">كل اللي يخص مشروعك في مكان واحد</h2>
+          </div>
+          <p class="section-desc mb-0">سواء بتخطط على الورق، بتنفّذ في الموقع، أو بتشتري خامات وتشطيبات — ابدأ من القسم المناسب.</p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <a class="quick-access-card quick-engineers" href="engineers.html">
+              <div>
+                <div class="quick-card-head">
+                  <span class="quick-icon">📐</span>
+                  <span class="quick-count-pill">10 تخصصات هندسية</span>
+                </div>
+                <b>المهندسين والاستشاريين</b>
+                <small>تصميم معماري وإنشائي، تصميم داخلي 3D، إشراف على التنفيذ، وحصر كميات ومقايسات دقيقة.</small>
+                <div class="quick-mini-tags">
+                  <span>تصميم معماري</span>
+                  <span>إشراف هندسي</span>
+                  <span>ديكور داخلي</span>
+                  <span>حصر كميات</span>
+                </div>
+              </div>
+              <em>اكتشف المهندسين المعتمدين <span>←</span></em>
+            </a>
+          </div>
+
+          <div class="col-lg-4">
+            <a class="quick-access-card quick-workers" href="workers.html">
+              <div>
+                <div class="quick-card-head">
+                  <span class="quick-icon">🧰</span>
+                  <span class="quick-count-pill">جميع بنود التشطيب</span>
+                </div>
+                <b>العمال والصنايعية</b>
+                <small>نخبة من الفنيين والصنايعية المهرة في الكهرباء، السباكة، المحارة، السيراميك، النقاشة، والجبس بورد.</small>
+                <div class="quick-mini-tags">
+                  <span>كهرباء وسمارت</span>
+                  <span>سباكة وعزل</span>
+                  <span>سيراميك وبورسلين</span>
+                  <span>دهانات</span>
+                </div>
+              </div>
+              <em>استكشف دليل الصنايعية <span>←</span></em>
+            </a>
+          </div>
+
+          <div class="col-lg-4">
+            <a class="quick-access-card quick-suppliers" href="suppliers.html">
+              <div>
+                <div class="quick-card-head">
+                  <span class="quick-icon">🏪</span>
+                  <span class="quick-count-pill">توريد مباشر للموقع</span>
+                </div>
+                <b>الأدوات والمحلات والموردين</b>
+                <small>دليل شامل لمعارض السيراميك، الأدوات الصحية، الإضاءة، الدهانات، وموردي الحديد والأسمنت والمعدات.</small>
+                <div class="quick-mini-tags">
+                  <span>حديد وأسمنت</span>
+                  <span>معارض سيراميك</span>
+                  <span>كيماويات بناء</span>
+                  <span>معدات</span>
+                </div>
+              </div>
+              <em>افتح دليل المحلات والموردين <span>←</span></em>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         4. ENGINEERING SPECIALTIES GRID
+         ========================================== -->
+    <section class="section classic-specialties reveal-on-scroll">
+      <div class="container-custom">
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">الخدمات الهندسية</span>
+            <h2 class="section-title">اختار التخصص الهندسي المناسب لمشروعك</h2>
+            <p class="section-desc">تخصصات متكاملة تغطي كافة مراحل البناء من الرفع المساحي والتصميم حتى التسليم على المفتاح.</p>
+          </div>
+          <a class="btn-bunyora btn-bunyora-outline" href="engineers.html">عرض كل المهندسين ←</a>
+        </div>
+        <div class="row g-3" id="home-specialty-pills">
+          <!-- Populated dynamically by main.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         5. INTERACTIVE PROJECT COST ESTIMATOR WIDGET
+         ========================================== -->
+    <section class="section estimator-section reveal-on-scroll" id="cost-estimator">
+      <div class="container-custom">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-7">
+            <div class="estimator-card">
+              <span class="section-kicker gold-kicker mb-2">✨ ميزة ذكية حصرية في BUNYORA</span>
+              <h2 class="fw-bold fs-2 mb-2 text-white">حاسبة التكلفة الاسترشادية لمشروعك</h2>
+              <p class="text-white-50 small mb-4">حرّك المؤشر لتحديد مساحة وحدتك واختار مستوى التشطيب أو الخدمة الهندسية عشان تعرف الميزانية التقريبية وتوزيع البنود فوراً.</p>
+
+              <!-- Area Slider -->
+              <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label for="est-area-range" class="fw-bold small text-light">مساحة الوحدة أو المشروع بالمتر المربع:</label>
+                  <span id="est-area-val" class="badge bg-warning text-dark fs-6 px-3 py-1 fw-bold">180 م²</span>
+                </div>
+                <input type="range" id="est-area-range" class="range-slider" min="60" max="600" step="10" value="180">
+                <div class="d-flex justify-content-between small text-white-50 mt-1">
+                  <span>60 م²</span>
+                  <span>200 م²</span>
+                  <span>400 م²</span>
+                  <span>600 م²</span>
+                </div>
+              </div>
+
+              <!-- Finishing / Service Level Buttons -->
+              <label class="fw-bold small text-light d-block mb-2">اختار نوع الباقة أو مستوى التشطيب:</label>
+              <div class="row g-2">
+                <div class="col-6 col-md-3">
+                  <button type="button" class="tier-btn" data-rate="350" data-name="تصميم هندسي متكامل (2D + 3D)">
+                    📐 تصميم هندسي فقط
+                  </button>
+                </div>
+                <div class="col-6 col-md-3">
+                  <button type="button" class="tier-btn" data-rate="3400" data-name="تشطيب اقتصادي متكامل">
+                    🧰 تشطيب اقتصادي
+                  </button>
+                </div>
+                <div class="col-6 col-md-3">
+                  <button type="button" class="tier-btn active" data-rate="4800" data-name="تشطيب سوبر لوكس متكامل">
+                    ✨ سوبر لوكس
+                  </button>
+                </div>
+                <div class="col-6 col-md-3">
+                  <button type="button" class="tier-btn" data-rate="6800" data-name="تشطيب الترا لوكس VIP">
+                    👑 الترا لوكس VIP
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-5">
+            <div class="estimator-result-box">
+              <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
+                <div>
+                  <small class="text-muted fw-bold d-block">إجمالي التكلفة التقديرية</small>
+                  <h3 id="est-total-cost" class="fw-bold text-success mb-0 fs-2">864,000 ج.م</h3>
+                </div>
+                <span class="badge-status badge-green">مقايسة فورية</span>
+              </div>
+
+              <div class="d-grid gap-2 mb-4 small">
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                  <span class="text-muted fw-bold">📐 التصميم والإشراف الهندسي (8%):</span>
+                  <strong id="est-design-cost">69,120 ج.م</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                  <span class="text-muted fw-bold">⚡ مراحل التأسيس (كهرباء، سباكة، محارة):</span>
+                  <strong id="est-foundation-cost">362,880 ج.م</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                  <span class="text-muted fw-bold">🎨 التشطيبات النهائية والأرضيات:</span>
+                  <strong id="est-finish-cost">432,000 ج.م</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                  <span class="text-muted fw-bold">⏱ المدة الزمنية المتوقعة:</span>
+                  <strong id="est-duration" class="text-primary">10 إلى 12 أسابيع عمل</strong>
+                </div>
+              </div>
+
+              <a id="est-request-btn" href="request.html" class="btn-bunyora btn-bunyora-primary w-100 py-3">
+                اطلب عروض أسعار دقيقة لهذا المشروع ←
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         6. FEATURED ENGINEERS WITH FILTER TABS & QUICK VIEW
+         ========================================== -->
+    <section class="section section-white reveal-on-scroll">
+      <div class="container-custom">
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">خبرات هندسية موثوقة</span>
+            <h2 class="section-title">اتعرف على نخبة المهندسين</h2>
+            <p class="section-desc">راجع التخصص والملف المهني وسابقة الأعمال أو اضغط "معاينة" للاطلاع السريع قبل إرسال طلبك.</p>
+          </div>
+          <div class="home-filter-pills">
+            <button type="button" class="home-filter-btn active" data-filter="all">الكل</button>
+            <button type="button" class="home-filter-btn" data-filter="architecture">معماري</button>
+            <button type="button" class="home-filter-btn" data-filter="structural">إنشائي</button>
+            <button type="button" class="home-filter-btn" data-filter="civil">مدني</button>
+            <button type="button" class="home-filter-btn" data-filter="interior">تصميم داخلي</button>
+            <button type="button" class="home-filter-btn" data-filter="electrical">كهرباء</button>
+          </div>
+        </div>
+
+        <div class="row g-4" id="home-featured-engineers">
+          <!-- Populated dynamically by main.js -->
+        </div>
+
+        <div class="text-center mt-4 pt-2">
+          <a class="btn-bunyora btn-bunyora-outline px-4" href="engineers.html">استعراض دليل المهندسين بالكامل ←</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         7. MARKET DIRECTORIES (WORKERS & SUPPLIERS)
+         ========================================== -->
+    <section class="section market-sections pt-0 reveal-on-scroll">
+      <div class="container-custom">
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">دليل الخدمات والمستلزمات</span>
+            <h2 class="section-title">من الموقع للمحل، كل حاجة ليها مكان</h2>
+            <p class="section-desc">دليل مستقل للصنايعية والفنيين ودليل للمحلات والخامات والمعدات اللي بتحتاجها في كل مراحل المشروع.</p>
+          </div>
+        </div>
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <article class="market-feature-card workers-feature">
+              <div class="market-feature-art">👷</div>
+              <div>
+                <span class="section-kicker">التنفيذ والتشطيبات</span>
+                <h3>عمال وصنايعية لكل بند</h3>
+                <p>كهرباء وسباكة، تكييف، سيراميك وبورسلين، دهانات، جبس بورد، نجارة، ألوميتال، عزل، حدادة وترميمات.</p>
+                <a href="workers.html" class="btn-bunyora btn-bunyora-primary">دليل العمال والصنايعية ←</a>
+              </div>
+            </article>
+          </div>
+          <div class="col-lg-6">
+            <article class="market-feature-card suppliers-feature">
+              <div class="market-feature-art">🧱</div>
+              <div>
+                <span class="section-kicker gold-kicker">الخامات والتوريدات</span>
+                <h3>محلات وموردين ومعدات</h3>
+                <p>أدوات صحية وكهرباء، سيراميك، دهانات، حديد وأسمنت، أخشاب، كيماويات عزل، ومعدات هندسية للموقع.</p>
+                <a href="suppliers.html" class="btn-bunyora btn-bunyora-gold">دليل الأدوات والمحلات ←</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         8. HOW IT WORKS (3 SIMPLE STEPS)
+         ========================================== -->
+    <section class="section classic-how reveal-on-scroll" id="how">
+      <div class="container-custom">
+        <div class="section-head centered-head">
+          <div>
+            <span class="section-kicker">طريقة استخدام ذكية وبسيطة</span>
+            <h2 class="section-title">ابدأ مشروعك في 3 خطوات</h2>
+            <p class="section-desc">من غير تعقيد ولا حيرة — حدد احتياجك وقارن العروض وابدأ التنفيذ بثقة.</p>
+          </div>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <article class="classic-step-card">
+              <span>01</span>
+              <div class="step-icon">🔎</div>
+              <h3>حدد احتياجك بسهولة</h3>
+              <p>اختار التخصص الهندسي أو البند التنفيذي أو نوع الخامة والمحل اللي بتدور عليه في محافظتك.</p>
+            </article>
+          </div>
+          <div class="col-md-4">
+            <article class="classic-step-card">
+              <span>02</span>
+              <div class="step-icon">📋</div>
+              <h3>راجع الملفات وقارن العروض</h3>
+              <p>اطلع على سابقة الأعمال والتقييمات والأسعار الاسترشادية وقارن بين عروض المهندسين بشفافية.</p>
+            </article>
+          </div>
+          <div class="col-md-4">
+            <article class="classic-step-card">
+              <span>03</span>
+              <div class="step-icon">🤝</div>
+              <h3>ابدأ التنفيذ وتابع مشروعك</h3>
+              <p>تواصل مباشرة مع مقدم الخدمة أو اعتمد العرض المناسب وتابع مراحل مشروعك خطوة بخطوة.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         9. CLIENT TESTIMONIALS & FAQ SECTION
+         ========================================== -->
+    <section class="section section-white reveal-on-scroll">
+      <div class="container-custom">
+        <div class="row g-5 align-items-start">
+          <!-- Testimonials Column -->
+          <div class="col-lg-6">
+            <span class="section-kicker">قصص نجاح وتجارب حقيقية</span>
+            <h2 class="section-title mb-4">ماذا يقول عملاء ومهندسو BUNYORA؟</h2>
+
+            <div class="d-grid gap-3">
+              <div class="testimonial-card">
+                <span class="quote-mark">“</span>
+                <div class="card-rating mb-2">★ ★ ★ ★ ★ <span class="text-muted small ms-2">تشطيب فيلا سكنية - التجمع الخامس</span></div>
+                <p class="text-muted small mb-3">"وفرت عليا وقت ومجهود كبير جداً! قدرت أوصل لمهندس معماري ممتاز وبعدها جبت فنيين الكهرباء والسباكة ومعرض البورسلين من نفس المنصة."</p>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="rounded-circle bg-success-subtle text-success fw-bold d-grid place-items-center" style="width:38px;height:38px;display:grid;place-items:center;">م</div>
+                  <div>
+                    <b class="d-block small">أ. محمد عبد الهادي</b>
+                    <small class="text-muted" style="font-size:11px;">مالك مشروع سكني</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="testimonial-card">
+                <span class="quote-mark">“</span>
+                <div class="card-rating mb-2">★ ★ ★ ★ ★ <span class="text-muted small ms-2">تصميم إنشائي ومقايسة - الإسكندرية</span></div>
+                <p class="text-muted small mb-3">"فكرة إن العميل يبعت تفاصيل مشروعه ويقارن عروض المهندسين الموثقين بنقابة المهندسين خلت التواصل احترافي وواضح من أول يوم."</p>
+                <div class="d-flex align-items-center gap-2">
+                  <img src="assets/img/46.jpg" alt="م. أحمد فؤاد" class="rounded-circle" style="width:38px;height:38px;object-fit:cover;">
+                  <div>
+                    <b class="d-block small">م. أحمد فؤاد</b>
+                    <small class="text-muted" style="font-size:11px;">استشاري هندسة إنشائية معتمد على BUNYORA</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive FAQ Column -->
+          <div class="col-lg-6">
+            <span class="section-kicker gold-kicker">الأسئلة الشائعة</span>
+            <h2 class="section-title mb-4">إجابات واضحة لكل استفساراتك</h2>
+
+            <div class="accordion" id="bunyoraFaq">
+              <div class="faq-item-box">
+                <button class="faq-question-btn" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true">
+                  <span>كيف يتم التحقق من المهندسين على منصة BUNYORA؟</span>
+                  <span class="text-success">▼</span>
+                </button>
+                <div id="faq1" class="collapse show" data-bs-parent="#bunyoraFaq">
+                  <div class="faq-answer-body">
+                    يقوم فريق مراجعة المنصة بفحص كارنيه نقابة المهندسين وشهادة المؤهل وسابقة الأعمال لكل مهندس قبل تفعيل شارة <b>"مهندس موثّق ✓"</b> على ملفه الشخصي.
+                  </div>
+                </div>
+              </div>
+
+              <div class="faq-item-box">
+                <button class="faq-question-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                  <span>هل يمكنني طلب أكثر من عرض سعر لمشروعي؟</span>
+                  <span class="text-success">▼</span>
+                </button>
+                <div id="faq2" class="collapse" data-bs-parent="#bunyoraFaq">
+                  <div class="faq-answer-body">
+                    نعم بالتأكيد! بمجرد إرسال طلب الخدمة من صفحة "اطلب خدمة"، يصل طلبك للمهندسين المتخصصين في محافظتك وتستقبل عدة عروض أسعار فنية ومالية للمقارنة واختيار الأنسب.
+                  </div>
+                </div>
+              </div>
+
+              <div class="faq-item-box">
+                <button class="faq-question-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                  <span>كيف أسجل كمهندس أو صنايعي أو صاحب معرض خامات؟</span>
+                  <span class="text-success">▼</span>
+                </button>
+                <div id="faq3" class="collapse" data-bs-parent="#bunyoraFaq">
+                  <div class="faq-answer-body">
+                    اضغط على "إنشاء حساب جديد" واختر نوع حسابك (مهندس / صنايعي وفني / محل ومورد)، وستظهر لك الحقول المخصصة لنشاطك لإنشاء صفحتك المهنية واستقبال طلبات العملاء.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         10. CALL TO ACTION BANNER
+         ========================================== -->
+    <section class="home-cta reveal-on-scroll">
+      <div class="container-custom">
+        <div class="home-cta-inner">
+          <div>
+            <span>للمهندسين والفنيين وموردي الخامات</span>
+            <h2>خلّي خبرتك وشغلك يوصلوا لآلاف العملاء</h2>
+            <p>أنشئ ملفك المهني على BUNYORA واعرض خدماتك وأعمالك السابقة واستقبل طلبات المشروعات في محافظتك.</p>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn-bunyora btn-bunyora-light" href="register.html?type=engineer">انضم كمهندس ←</a>
+            <a class="btn-bunyora btn-bunyora-gold" href="register.html?type=supplier">سجّل محلك / مهنتك</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==========================================
+       QUICK VIEW ENGINEER MODAL
+       ========================================== -->
+  <div class="modal fade" id="engineerQuickViewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+        <div class="modal-header border-bottom px-4 py-3" style="background: #f6f9fb;">
+          <div class="d-flex align-items-center gap-3">
+            <img id="qv-avatar" src="assets/img/32.jpg" alt="Avatar" class="avatar" style="width:60px;height:60px;">
+            <div>
+              <span class="verified-badge mb-1">✓ مهندس معتمد</span>
+              <h5 id="qv-name" class="modal-title fw-bold mb-0"></h5>
+              <small id="qv-specialty" class="text-success fw-bold"></small>
+            </div>
+          </div>
+          <button type="button" class="btn-close ms-0 me-auto" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p id="qv-meta" class="small text-muted fw-bold mb-2"></p>
+          <p class="small text-secondary mb-2">🎓 <span id="qv-uni"></span></p>
+          <p id="qv-bio" class="mb-4" style="font-size:13.5px;line-height:1.9;"></p>
+          <h6 class="fw-bold mb-2">الخدمات والأسعار الاسترشادية:</h6>
+          <div id="qv-services" class="mb-3"></div>
+        </div>
+        <div class="modal-footer border-top px-4 py-3 d-flex justify-content-between">
+          <a id="qv-profile-link" href="engineer.html" class="btn-bunyora btn-bunyora-outline">فتح الملف الكامل وسابقة الأعمال</a>
+          <a id="qv-request-link" href="request.html" class="btn-bunyora btn-bunyora-primary">اطلب عرض سعر الآن ←</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       ULTRA-PREMIUM ARCHITECTURAL FOOTER
+       ========================================== -->
+  <footer class="site-footer">
+    <div class="container-custom">
+      <!-- Newsletter & Quick Consultation Bar -->
+      <div class="footer-newsletter">
+        <div class="row g-3 align-items-center">
+          <div class="col-lg-6">
+            <span class="badge bg-warning text-dark fw-bold mb-1">نشرة BUNYORA الهندسية</span>
+            <h5 class="text-white fw-bold mb-1">استلم أحدث أسعار الخامات ونصائح التشطيب</h5>
+            <p class="mb-0 small">اشترك مجاناً ليصلك متوسط أسعار الحديد والأسمنت والسيراميك ومقايسات التشطيب شهرياً.</p>
+          </div>
+          <div class="col-lg-6">
+            <form id="footer-newsletter-form" class="d-flex gap-2 flex-wrap flex-sm-nowrap">
+              <input type="email" class="form-control-custom flex-grow-1" placeholder="أدخل بريدك الإلكتروني..." required>
+              <button type="submit" class="btn-bunyora btn-bunyora-gold px-4">اشترك الآن ←</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Footer Links Grid -->
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <a href="index.html" class="brand text-white mb-3 d-inline-block">
+            <img class="brand-logo brand-logo-footer" src="assets/img/Bunyora Architectural Monogram Logo.webp" alt="BUNYORA">
+          </a>
+          <p class="mt-2">
+            <b>بونيرا .. نربط الخبرة، ونبني المستقبل.</b><br>
+            أول منصة مصرية متكاملة تجمع المهندسين الاستشاريين، الفنيين والصنايعية، ومعارض وموردي خامات البناء لمساعدتك في كل مراحل مشروعك.
+          </p>
+          <div class="social-links">
+            <a href="#top" class="social-btn" title="LinkedIn">in</a>
+            <a href="#top" class="social-btn" title="Facebook">f</a>
+            <a href="#top" class="social-btn" title="Instagram">◎</a>
+            <a href="#top" class="social-btn" title="WhatsApp">✆</a>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-2">
+          <h4>استكشف المنصة</h4>
+          <div class="footer-links">
+            <a href="index.html">الرئيسية</a>
+            <a href="engineers.html">دليل المهندسين</a>
+            <a href="workers.html">العمال والصنايعية</a>
+            <a href="suppliers.html">الأدوات والمحلات</a>
+            <a href="#cost-estimator">حاسبة تكلفة التشطيب</a>
+            <a href="api-tester.html">اختبار الـ API (Postman)</a>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <h4>خدمات العملاء</h4>
+          <div class="footer-links">
+            <a href="request.html">اطلب خدمة هندسية</a>
+            <a href="dashboard.html">تابع طلباتك الحالية</a>
+            <a href="dashboard.html">قارن عروض المهندسين</a>
+            <a href="#how">كيف تعمل منصة BUNYORA؟</a>
+            <a href="#bunyoraFaq">الأسئلة الشائعة</a>
+          </div>
+        </div>
+
+        <div class="col-lg-3">
+          <h4>لمقدمي الخدمات</h4>
+          <div class="footer-links">
+            <a href="register.html?type=engineer">انضم كمهندس استشاري</a>
+            <a href="register.html?type=worker">انضم كصنايعي / فني محترف</a>
+            <a href="register.html?type=supplier">سجّل معرضك / شركة التوريدات</a>
+            <a href="login.html">تسجيل الدخول للوحة التحكم</a>
+          </div>
+          <div class="mt-3 p-2 rounded-3 small" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+            📍 متاح في جميع محافظات جمهورية مصر العربية
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 <b>BUNYORA</b> (Build Connections. Shape The Future) — مشروع تخرج NTI — جميع الحقوق محفوظة.</span>
+        <a href="#top" class="btn-bunyora btn-bunyora-outline py-1 px-3 small">العودة للأعلى ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/preferences.js"></script>
+</body>
+</html>
